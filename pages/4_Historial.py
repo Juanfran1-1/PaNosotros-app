@@ -2,9 +2,20 @@ import pandas as pd
 import streamlit as st
 from data.modificador_db import cargar_datos
 
+# BLOQUEO DE SEGURIDAD
+if "authenticated" not in st.session_state or not st.session_state.authenticated:
+    st.warning("⚠️ Por favor, inicia sesión en la página principal para continuar.")
+    st.stop()
+
 st.subheader("Historial de pedidos")
 
 df = cargar_datos()
+
+col1, col2, col3 = st.columns([2, 2, 1])
+
+with col2:
+    st.image("logo.png", width=250)
+
 
 #Si está vacío, mostramos el mensaje y DETENEMOS la ejecución ahí mismo
 if df.empty:

@@ -4,7 +4,10 @@ import time
 
 from data.modificador_db import guardar_pedido, cargar_hamburguesas
 
-
+# BLOQUEO DE SEGURIDAD
+if "authenticated" not in st.session_state or not st.session_state.authenticated:
+    st.warning("⚠️ Por favor, inicia sesión en la página principal para continuar.")
+    st.stop()
 
 st.subheader("Registrar nuevo pedido")
 

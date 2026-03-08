@@ -7,7 +7,10 @@ from data.modificador_db import (
     eliminar_hamburguesa,
 )
 
-
+# BLOQUEO DE SEGURIDAD
+if "authenticated" not in st.session_state or not st.session_state.authenticated:
+    st.warning("⚠️ Por favor, inicia sesión en la página principal para continuar.")
+    st.stop()
 
 st.subheader("🍔 Productos")
 
