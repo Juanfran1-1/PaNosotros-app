@@ -105,5 +105,30 @@ def aplicar_estilos():
         [data-testid="stMetricValue"] div {
             color: #D32F2F !important; /* Rojo para los números importantes */
         }
+        
+        /* ARREGLO FINAL DEL HEADER Y SUS ÍCONOS */
+        header[data-testid="stHeader"] {
+            background-color: #FDFCF0 !important;
+            border-bottom: none !important; /* Quitamos cualquier línea divisoria */
+        }
+
+        /* Suavizamos los 3 puntitos y todos los íconos del menú */
+        header[data-testid="stHeader"] svg {
+            fill: #4A2C2A !important; 
+            opacity: 0.6; /* Los hace un poco más claros para que no parezcan negros puros */
+            transition: opacity 0.3s;
+        }
+
+        /* Cuando pasás el mouse por encima, se ponen más oscuros */
+        header[data-testid="stHeader"] svg:hover {
+            opacity: 1;
+        }
+
+        /* Texto de 'Share' o botones al lado de los puntitos */
+        header[data-testid="stHeader"] button span {
+            color: #4A2C2A !important;
+            opacity: 0.8;
+            font-size: 14px !important;
+        }
     </style>
     """, unsafe_allow_html=True)
