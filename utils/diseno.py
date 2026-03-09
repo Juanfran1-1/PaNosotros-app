@@ -106,29 +106,34 @@ def aplicar_estilos():
             color: #D32F2F !important; /* Rojo para los números importantes */
         }
         
-        /* ARREGLO FINAL DEL HEADER Y SUS ÍCONOS */
+        /* ARREGLO FINAL DEL HEADER Y TODOS SUS ÍCONOS (Estrella, Lápiz, GitHub, Menú) */
         header[data-testid="stHeader"] {
             background-color: #FDFCF0 !important;
-            border-bottom: none !important; /* Quitamos cualquier línea divisoria */
+            border-bottom: none !important;
         }
 
-        /* Suavizamos los 3 puntitos y todos los íconos del menú */
-        header[data-testid="stHeader"] svg {
-            fill: #4A2C2A !important; 
-            opacity: 0.6; /* Los hace un poco más claros para que no parezcan negros puros */
-            transition: opacity 0.3s;
-        }
-
-        /* Cuando pasás el mouse por encima, se ponen más oscuros */
-        header[data-testid="stHeader"] svg:hover {
-            opacity: 1;
-        }
-
-        /* Texto de 'Share' o botones al lado de los puntitos */
-        header[data-testid="stHeader"] button span {
+        /* Forzamos color café a TODO lo que esté en el header: iconos, links y botones */
+        header[data-testid="stHeader"] svg, 
+        header[data-testid="stHeader"] a, 
+        header[data-testid="stHeader"] button {
+            fill: #4A2C2A !important;
             color: #4A2C2A !important;
-            opacity: 0.8;
-            font-size: 14px !important;
+            opacity: 0.6 !important; /* Suavizados para que no pesen */
+            transition: opacity 0.3s !important;
+        }
+
+        /* Efecto hover para todos los elementos del header */
+        header[data-testid="stHeader"] svg:hover, 
+        header[data-testid="stHeader"] a:hover, 
+        header[data-testid="stHeader"] button:hover {
+            opacity: 1 !important;
+            background-color: rgba(74, 44, 42, 0.05) !important; /* Un sutil brillo café al pasar el mouse */
+            border-radius: 50%;
+        }
+
+        /* Específicamente para el texto de 'Share' que suele ser rebelde */
+        header[data-testid="stHeader"] span {
+            color: #4A2C2A !important;
         }
     </style>
     """, unsafe_allow_html=True)
