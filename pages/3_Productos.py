@@ -15,10 +15,14 @@ st.set_page_config(page_title="PA' NOSOTROS", page_icon="logo.png", layout="wide
 aplicar_estilos()
 
 # BLOQUEO DE SEGURIDAD
+
 if "authenticated" not in st.session_state or not st.session_state.authenticated:
     st.warning("⚠️ Por favor, inicia sesión para continuar.")
-    if st.button("Ir al Inicio", type="primary"):
-        st.switch_page("PaNosotros.py")
+    
+    # Creamos un botón que lo lleva a la página principal
+    if st.button("Ir al Inicio", type="secondary"):
+        st.switch_page("PaNosotros.py") # <--- Asegurate de que el nombre coincida con tu archivo principal
+    
     st.stop()
 
 st.subheader("🍔 Productos")

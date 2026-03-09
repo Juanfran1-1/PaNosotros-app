@@ -17,7 +17,7 @@ if "authenticated" not in st.session_state or not st.session_state.authenticated
     st.warning("⚠️ Por favor, inicia sesión para continuar.")
     
     # Creamos un botón que lo lleva a la página principal
-    if st.button("Ir al Inicio", type="primary"):
+    if st.button("Ir al Inicio", type="secondary"):
         st.switch_page("PaNosotros.py") # <--- Asegurate de que el nombre coincida con tu archivo principal
     
     st.stop()
