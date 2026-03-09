@@ -1,4 +1,5 @@
 import streamlit as st
+from utils.diseno import aplicar_estilos
 
 from data.modificador_db import (
     cargar_hamburguesas,
@@ -7,14 +8,17 @@ from data.modificador_db import (
     eliminar_hamburguesa,
 )
 
+# 1. Configuración de página
+st.set_page_config(page_title="PA' NOSOTROS", page_icon="logo.png", layout="wide")
+
+# 2. Aplicar el CSS centralizado
+aplicar_estilos()
+
 # BLOQUEO DE SEGURIDAD
 if "authenticated" not in st.session_state or not st.session_state.authenticated:
     st.warning("⚠️ Por favor, inicia sesión para continuar.")
-    
-    # Creamos un botón que lo lleva a la página principal
     if st.button("Ir al Inicio", type="primary"):
-        st.switch_page("PaNosotros.py") # <--- Asegurate de que el nombre coincida con tu archivo principal
-    
+        st.switch_page("PaNosotros.py")
     st.stop()
 
 st.subheader("🍔 Productos")
@@ -47,6 +51,8 @@ st.markdown("### Agregar nueva hamburguesa")
 with st.form("form_agregar_hamburguesa"):
     nombre_nuevo = st.text_input("Nombre")
     precio_nuevo = st.number_input("Precio", min_value=0.0, step=100.0)
+    
+    # Botón Agregar: Tipo PRIMARY para que sea VERDE
     submit_agregar = st.form_submit_button("Agregar hamburguesa")
 
     if submit_agregar:
@@ -56,11 +62,9 @@ with st.form("form_agregar_hamburguesa"):
             st.error("El precio debe ser mayor a 0.")
         else:
             nombres_existentes = df_hamburguesas["nombre"].str.lower().tolist()
-
             if nombre_nuevo.strip().lower() in nombres_existentes:
                 st.warning("Esa hamburguesa ya existe.")
             else:
-                # --- TRY PARA AGREGAR ---
                 try:
                     agregar_hamburguesa(nombre_nuevo.strip(), precio_nuevo)
                     st.success("Hamburguesa agregada correctamente.")
@@ -91,11 +95,11 @@ if not df_hamburguesas.empty:
         key="nuevo_precio"
     )
 
-    if st.button("Actualizar precio"):
+    # Botón Actualizar: Tipo PRIMARY para que sea VERDE
+    if st.button("Actualizar precio", type="primary"):
         if nuevo_precio <= 0:
             st.error("El precio debe ser mayor a 0.")
         else:
-            # --- TRY PARA ACTUALIZAR ---
             try:
                 actualizar_precio_hamburguesa(hamburguesa_id, nuevo_precio)
                 st.success("Precio actualizado correctamente.")
@@ -116,8 +120,8 @@ if not df_hamburguesas.empty:
     fila_eliminar = df_hamburguesas[df_hamburguesas["nombre"] == hamburguesa_eliminar].iloc[0]
     hamburguesa_id_eliminar = int(fila_eliminar["id"])
 
-    if st.button("Eliminar hamburguesa"):
-        # --- TRY PARA ELIMINAR ---
+    # Botón Eliminar: Tipo SECONDARY para que sea ROJO
+    if st.button("Eliminar hamburguesa", type="secondary"):
         try:
             eliminar_hamburguesa(hamburguesa_id_eliminar)
             st.success("Hamburguesa eliminada correctamente.")
@@ -126,5 +130,5 @@ if not df_hamburguesas.empty:
             st.error(f"No se pudo eliminar: {e}")
             
 if st.sidebar.button("Cerrar Sesión"):
-        st.session_state.authenticated = False
-        st.rerun()
+    st.session_state.authenticated = False
+    st.rerun()

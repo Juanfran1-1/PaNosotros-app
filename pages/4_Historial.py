@@ -1,6 +1,13 @@
 import pandas as pd
 import streamlit as st
 from data.modificador_db import cargar_datos
+from utils.diseno import aplicar_estilos
+
+# 1. Configuración de página (Debe ser lo primero)
+st.set_page_config(page_title="PA' NOSOTROS", page_icon="logo.png", layout="wide")
+
+# 2. Aplicar el CSS centralizado
+aplicar_estilos()
 
 # BLOQUEO DE SEGURIDAD
 if "authenticated" not in st.session_state or not st.session_state.authenticated:

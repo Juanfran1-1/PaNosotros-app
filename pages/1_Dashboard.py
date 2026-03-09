@@ -2,8 +2,16 @@ import pandas as pd
 import streamlit as st
 import plotly.express as px 
 
+from datetime import datetime
+from utils.diseno import aplicar_estilos
 from data.modificador_db import cargar_datos, cargar_hamburguesas
 from services.metricas import calcular_metricas, calcular_hamburguesas_mes
+
+# 1. Configuración de página (Debe ser lo primero)
+st.set_page_config(page_title="PA' NOSOTROS", page_icon="logo.png", layout="wide")
+
+# 2. Aplicar el CSS centralizado
+aplicar_estilos()
 
 if "authenticated" not in st.session_state or not st.session_state.authenticated:
     st.warning("⚠️ Por favor, inicia sesión para continuar.")
@@ -92,7 +100,7 @@ else:
         cols = st.columns(len(TIPOS_HAMBURGUESA))
         for i, tipo in enumerate(TIPOS_HAMBURGUESA):
             cols[i].metric(tipo, conteo.get(tipo, 0))
-            
+
 if st.sidebar.button("Cerrar Sesión"):
-        st.session_state.authenticated = False
-        st.rerun()
+    st.session_state.authenticated = False
+    st.rerun()
