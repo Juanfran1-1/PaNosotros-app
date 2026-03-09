@@ -4,49 +4,82 @@ from data.modificador_db import cargar_datos
 
 # BLOQUEO DE SEGURIDAD
 if "authenticated" not in st.session_state or not st.session_state.authenticated:
-    st.warning("⚠️ Por favor, inicia sesión en la página principal para continuar.")
+    st.warning("⚠️ Por favor, inicia sesión para continuar.")
+    
+    # Creamos un botón que lo lleva a la página principal
+    if st.button("Ir al Inicio", type="primary"):
+        st.switch_page("PaNosotros.py") # <--- Asegurate de que el nombre coincida con tu archivo principal
+    
     st.stop()
+
+if st.sidebar.button("Cerrar Sesión"):
+        st.session_state.authenticated = False
+        st.rerun()
 
 st.subheader("Historial de pedidos")
 
-df = cargar_datos()
+# --- TRY PARA CARGAR DATOS ---
+try:
+    df = cargar_datos()
+except Exception as e:
+    st.error(f"Error al conectar con la base de datos: {e}")
+    st.stop()
 
 col1, col2, col3 = st.columns([2, 2, 1])
 
 with col2:
-    st.image("logo.png", width=250)
+    try:
+        st.image("logo.png", width=250)
+    except:
+        pass
 
-
-#Si está vacío, mostramos el mensaje y DETENEMOS la ejecución ahí mismo
+# Si está vacío, mostramos el mensaje y DETENEMOS la ejecución
 if df.empty:
     st.info("No hay pedidos cargados todavía.")
-    st.stop() # Esto evita que el código de abajo siga corriendo y tire error
+    st.stop() 
 
-# Si hay datos, el código llega hasta acá
+# Filtro de fecha
 filtro_fecha = st.date_input("Filtrar por fecha", value=None)
 
 df_mostrar = df.copy()
 
-# convertir columna a datetime (ahora es seguro porque sabemos que hay datos)
-df_mostrar["fecha"] = pd.to_datetime(df_mostrar["fecha"], errors="coerce")
+# --- TRY PARA PROCESAR FECHAS Y HORAS ---
+try:
+    # Convertir columna a datetime
+    df_mostrar["fecha"] = pd.to_datetime(df_mostrar["fecha"], errors="coerce")
 
-# aplicar filtro si se eligió fecha
-if filtro_fecha:
-    filtro_fecha = pd.to_datetime(filtro_fecha)
-    # Filtramos comparando solo la fecha (sin hora)
-    df_mostrar = df_mostrar[df_mostrar["fecha"].dt.date == filtro_fecha.date()]
+    # Aplicar filtro si se eligió fecha (comparamos solo el día)
+    if filtro_fecha:
+        filtro_fecha = pd.to_datetime(filtro_fecha)
+        df_mostrar = df_mostrar[df_mostrar["fecha"].dt.date == filtro_fecha.date()]
 
-# ordenar pedidos
-df_mostrar = df_mostrar.sort_values(by="fecha", ascending=False)
+    # Ordenar pedidos por fecha (más nuevos arriba)
+    df_mostrar = df_mostrar.sort_values(by="fecha", ascending=False)
 
-# Mostrar tabla
-st.dataframe(
-    df_mostrar.rename(columns={
-        "fecha": "Fecha",
-        "detalle": "Detalle",
-        "cliente": "Cliente",
-        "monto": "Monto",
-        "metodo_pago": "Método de Pago"
-    }),
-    use_container_width=True
-)
+    # Formatear la fecha para que incluya la hora (Día/Mes/Año Hora:Minutos)
+    # Creamos una columna auxiliar para mostrar, así no rompemos el filtro original
+    df_mostrar["Fecha y Hora"] = df_mostrar["fecha"].dt.strftime('%d/%m/%Y %H:%M')
+
+except Exception as e:
+    st.error(f"Error al procesar el formato de fechas: {e}")
+
+# --- MOSTRAR TABLA ACTUALIZADA ---
+try:
+    # Mostramos "Fecha y Hora" en lugar de la columna "fecha" original
+    st.dataframe(
+        df_mostrar.rename(columns={
+            "Fecha y Hora": "Fecha y Hora",
+            "detalle": "Detalle",
+            "cliente": "Cliente",
+            "monto": "Monto",
+            "metodo_pago": "Método de Pago",
+            "entrega": "Tipo de Entrega",
+            "direccion": "Dirección"
+        })[["Fecha y Hora", "Detalle", "Cliente", "Monto", "Método de Pago", "Tipo de Entrega", "Dirección"]],
+        use_container_width=True
+    )
+except Exception as e:
+    st.error(f"Error al mostrar la tabla: {e}")
+    
+    
+

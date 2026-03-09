@@ -9,12 +9,22 @@ from data.modificador_db import (
 
 # BLOQUEO DE SEGURIDAD
 if "authenticated" not in st.session_state or not st.session_state.authenticated:
-    st.warning("⚠️ Por favor, inicia sesión en la página principal para continuar.")
+    st.warning("⚠️ Por favor, inicia sesión para continuar.")
+    
+    # Creamos un botón que lo lleva a la página principal
+    if st.button("Ir al Inicio", type="primary"):
+        st.switch_page("PaNosotros.py") # <--- Asegurate de que el nombre coincida con tu archivo principal
+    
     st.stop()
 
 st.subheader("🍔 Productos")
 
-df_hamburguesas = cargar_hamburguesas()
+# --- TRY PARA CARGAR ---
+try:
+    df_hamburguesas = cargar_hamburguesas()
+except Exception as e:
+    st.error(f"Error al conectar con la base de datos: {e}")
+    st.stop()
 
 st.markdown("### Hamburguesas actuales")
 
@@ -50,9 +60,13 @@ with st.form("form_agregar_hamburguesa"):
             if nombre_nuevo.strip().lower() in nombres_existentes:
                 st.warning("Esa hamburguesa ya existe.")
             else:
-                agregar_hamburguesa(nombre_nuevo.strip(), precio_nuevo)
-                st.success("Hamburguesa agregada correctamente.")
-                st.rerun()
+                # --- TRY PARA AGREGAR ---
+                try:
+                    agregar_hamburguesa(nombre_nuevo.strip(), precio_nuevo)
+                    st.success("Hamburguesa agregada correctamente.")
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"No se pudo agregar: {e}")
 
 st.divider()
 
@@ -81,9 +95,13 @@ if not df_hamburguesas.empty:
         if nuevo_precio <= 0:
             st.error("El precio debe ser mayor a 0.")
         else:
-            actualizar_precio_hamburguesa(hamburguesa_id, nuevo_precio)
-            st.success("Precio actualizado correctamente.")
-            st.rerun()
+            # --- TRY PARA ACTUALIZAR ---
+            try:
+                actualizar_precio_hamburguesa(hamburguesa_id, nuevo_precio)
+                st.success("Precio actualizado correctamente.")
+                st.rerun()
+            except Exception as e:
+                st.error(f"No se pudo actualizar: {e}")
 
     st.divider()
 
@@ -99,6 +117,14 @@ if not df_hamburguesas.empty:
     hamburguesa_id_eliminar = int(fila_eliminar["id"])
 
     if st.button("Eliminar hamburguesa"):
-        eliminar_hamburguesa(hamburguesa_id_eliminar)
-        st.success("Hamburguesa eliminada correctamente.")
+        # --- TRY PARA ELIMINAR ---
+        try:
+            eliminar_hamburguesa(hamburguesa_id_eliminar)
+            st.success("Hamburguesa eliminada correctamente.")
+            st.rerun()
+        except Exception as e:
+            st.error(f"No se pudo eliminar: {e}")
+            
+if st.sidebar.button("Cerrar Sesión"):
+        st.session_state.authenticated = False
         st.rerun()

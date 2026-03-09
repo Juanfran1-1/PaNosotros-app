@@ -1,33 +1,39 @@
 import streamlit as st
-from datetime import date
+from datetime import datetime
 import time
-
 from data.modificador_db import guardar_pedido, cargar_hamburguesas
 
-# BLOQUEO DE SEGURIDAD
+# --- BLOQUEO DE SEGURIDAD ---
 if "authenticated" not in st.session_state or not st.session_state.authenticated:
-    st.warning("⚠️ Por favor, inicia sesión en la página principal para continuar.")
+    st.warning("⚠️ Por favor, inicia sesión para continuar.")
+    
+    # Creamos un botón que lo lleva a la página principal
+    if st.button("Ir al Inicio", type="primary"):
+        st.switch_page("PaNosotros.py") # <--- Asegurate de que el nombre coincida con tu archivo principal
+    
     st.stop()
 
-st.subheader("Registrar nuevo pedido")
+st.title("📝 Registrar Nuevo Pedido")
 
+# Cargar productos desde la base de datos
 df_hamburguesas = cargar_hamburguesas()
 tipos_hamburguesa = df_hamburguesas["nombre"].tolist()
 
+# Inicializar el carrito de compras si no existe
 if "pedido_actual" not in st.session_state:
     st.session_state.pedido_actual = []
 
+# --- SECCIÓN: SELECCIÓN DE PRODUCTOS ---
 col1, col2 = st.columns(2)
 
 with col1:
-    tipo = st.selectbox("Tipo de hamburguesa", tipos_hamburguesa)
+    tipo = st.selectbox("Elegí la hamburguesa", tipos_hamburguesa)
 
 with col2:
     cantidad = st.number_input("Cantidad", min_value=1, step=1, value=1)
 
-if st.button("Agregar hamburguesa"):
+if st.button("➕ Agregar al pedido"):
     encontrada = False
-
     for item in st.session_state.pedido_actual:
         if item["tipo"] == tipo:
             item["cantidad"] += int(cantidad)
@@ -39,79 +45,112 @@ if st.button("Agregar hamburguesa"):
             "tipo": tipo,
             "cantidad": int(cantidad)
         })
-
     st.rerun()
 
-st.markdown("### Pedido actual")
+st.divider()
+
+# --- SECCIÓN: RESUMEN DEL PEDIDO ACTUAL ---
+st.markdown("### 🛒 Resumen del Pedido")
 
 if not st.session_state.pedido_actual:
-    st.info("Todavía no agregaste hamburguesas al pedido.")
+    st.info("El carrito está vacío.")
+else:
+    total_hamburguesas = 0
+    total_pedido = 0
 
+    h1, h2, h3, h4 = st.columns([4, 1, 2, 1])
+    h1.markdown("**Producto**")
+    h2.markdown("**Cant.**")
+    h3.markdown("**Subtotal**")
+    h4.markdown("**Quitar**")
 
-total_hamburguesas = 0
-total_pedido = 0
+    for i, item in enumerate(st.session_state.pedido_actual):
+        precio = df_hamburguesas.loc[
+            df_hamburguesas["nombre"] == item["tipo"], "precio"
+        ].values[0]
 
-h1, h2, h3, h4 = st.columns([4, 1, 2, 1])
-h1.markdown("**Hamburguesa**")
-h2.markdown("**Cant.**")
-h3.markdown("**Subtotal**")
-h4.markdown("**Quitar**")
-st.divider()
+        subtotal = item["cantidad"] * precio
+        total_hamburguesas += item["cantidad"]
+        total_pedido += subtotal
 
-for i, item in enumerate(st.session_state.pedido_actual):
-    precio = df_hamburguesas.loc[
-        df_hamburguesas["nombre"] == item["tipo"], "precio"
-    ].values[0]
+        c1, c2, c3, c4 = st.columns([4, 1, 2, 1])
+        c1.write(item['tipo'])
+        c2.write(f"{item['cantidad']}x")
+        c3.write(f"${subtotal:,.0f}")
 
-    subtotal = item["cantidad"] * precio
-    total_hamburguesas += item["cantidad"]
-    total_pedido += subtotal
-
-    c1, c2, c3, c4 = st.columns([4, 1, 2, 1])
-    c1.write(f"**{item['tipo']}**")
-    c2.write(f"**{item['cantidad']}x**")
-    c3.write(f"**${subtotal:,.0f}**")
-
-    if c4.button("❌", key=f"eliminar_{i}"):
-        st.session_state.pedido_actual.pop(i)
-        st.rerun()
-
-st.divider()
-
-t1, t2 = st.columns(2)
-t1.metric("Total hamburguesas", total_hamburguesas)
-t2.metric("Total a cobrar", f"${total_pedido:,.0f}")
-
-cliente = st.text_input("Nombre o número del cliente")
-metodo_pago = st.selectbox("Método de pago", ["Efectivo", "Virtual"])
-
-g1, g2 = st.columns(2)
-
-with g1:
-    if st.button("Guardar pedido"):
-        if cliente.strip() == "":
-            st.error("Tenés que ingresar el nombre o número del cliente.")
-        else:
-            detalle = " | ".join(
-                f"{item['cantidad']}x {item['tipo']}"
-                for item in st.session_state.pedido_actual
-            )
-
-            guardar_pedido(
-                date.today(),
-                detalle,
-                cliente.strip(),
-                total_pedido,
-                metodo_pago
-            )
-
-            st.session_state.pedido_actual = []
-            st.success("Pedido guardado correctamente.")
-            time.sleep(1.5)
+        if c4.button("❌", key=f"eliminar_{i}"):
+            st.session_state.pedido_actual.pop(i)
             st.rerun()
 
-with g2:
-    if st.button("Vaciar pedido"):
-        st.session_state.pedido_actual = []
-        st.warning("Se vació el pedido actual.")
+    st.divider()
+
+    # --- MÉTRICAS DE TOTAL ---
+    t1, t2 = st.columns(2)
+    t1.metric("Total unidades", total_hamburguesas)
+    t2.metric("Total a cobrar", f"${total_pedido:,.0f}")
+
+    # --- SECCIÓN: DATOS DEL CLIENTE Y ENTREGA ---
+    st.markdown("### 👤 Datos de Cliente y Pago")
+    
+    cliente = st.text_input("Nombre del cliente")
+    
+    col_e1, col_e2 = st.columns(2)
+    with col_e1:
+        tipo_entrega = st.radio("¿Cómo se entrega?", ["Take Away", "Delivery"], horizontal=True)
+    
+    direccion = ""
+    if tipo_entrega == "Delivery":
+        with col_e2:
+            direccion = st.text_input("📍 Dirección de envío")
+
+    metodo_pago = st.selectbox("Método de pago", ["Efectivo", "Digital"])
+
+    st.write("") # Espaciado
+
+    # --- BOTONES DE ACCIÓN ---
+    g1, g2 = st.columns(2)
+
+    with g1:
+        if st.button("✅ GUARDAR PEDIDO", use_container_width=True):
+            if cliente.strip() == "":
+                st.error("Falta el nombre del cliente.")
+            elif tipo_entrega == "Delivery" and direccion.strip() == "":
+                st.error("Si es Delivery, tenés que poner una dirección.")
+            elif not st.session_state.pedido_actual:
+                st.error("El carrito está vacío.")
+            else:
+                detalle_productos = " | ".join(
+                    f"{item['cantidad']}x {item['tipo']}"
+                    for item in st.session_state.pedido_actual
+                )
+                
+                # --- CAMBIO 2: Crear la variable con fecha y hora ---
+                # Esto genera un formato tipo: 2023-10-25 14:30:05
+                fecha_y_hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                
+                # Intentamos guardar y capturamos el resultado
+                exito = guardar_pedido(
+                    fecha_y_hora,      # <--- CAMBIO 3: Usar la nueva variable aquí
+                    detalle_productos,
+                    cliente.strip(),
+                    total_pedido,
+                    metodo_pago,
+                    tipo_entrega,  
+                    direccion.strip() 
+                )
+
+                if exito:
+                    st.session_state.pedido_actual = []
+                    st.success("¡Pedido guardado con éxito!")
+                    time.sleep(1.5)
+                    st.rerun()
+    with g2:
+        if st.button("🗑️ VACIAR CARRITO", use_container_width=True):
+            st.session_state.pedido_actual = []
+            st.warning("Se vació el pedido actual.")
+            time.sleep(1)
+            st.rerun()
+            
+if st.sidebar.button("Cerrar Sesión"):
+        st.session_state.authenticated = False
         st.rerun()

@@ -1,42 +1,61 @@
 import pandas as pd
+import streamlit as st
 from data.database import get_connection
 
 def cargar_hamburguesas():
-    client = get_connection()
-    # Traemos todas las burguers ordenadas por nombre
-    res = client.table("hamburguesas").select("*").order("nombre").execute()
-    return pd.DataFrame(res.data)
+    try:
+        client = get_connection()
+        res = client.table("hamburguesas").select("*").order("nombre").execute()
+        return pd.DataFrame(res.data)
+    except Exception as e:
+        st.error(f"⚠️ Error al cargar hamburguesas: {e}")
+        return pd.DataFrame()
 
 def cargar_datos():
-    client = get_connection()
-    # Traemos los pedidos, el más nuevo primero
-    res = client.table("pedidos").select("*").order("id", desc=True).execute()
-    return pd.DataFrame(res.data)
+    try:
+        client = get_connection()
+        res = client.table("pedidos").select("*").order("id", desc=True).execute()
+        return pd.DataFrame(res.data)
+    except Exception as e:
+        st.error(f"⚠️ Error al cargar el historial: {e}")
+        return pd.DataFrame()
 
-def guardar_pedido(fecha, detalle, cliente, monto, metodo_pago):
-    client = get_connection()
-    data = {
-        "fecha": str(fecha),
-        "detalle": detalle,
-        "cliente": cliente,
-        "monto": float(monto),
-        "metodo_pago": metodo_pago
-    }
-    client.table("pedidos").insert(data).execute()
-
-# ---------------------------
-# FUNCIONES DE PRODUCTOS
-# ---------------------------
+def guardar_pedido(fecha, detalle, cliente, monto, metodo_pago, entrega, direccion):
+    try:
+        client = get_connection()
+        data = {
+            "fecha": str(fecha),
+            "detalle": str(detalle),
+            "cliente": str(cliente),
+            "monto": int(monto), 
+            "metodo_pago": str(metodo_pago),
+            "entrega": str(entrega),      
+            "direccion": str(direccion)  
+        }
+        client.table("pedidos").insert(data).execute()
+        return True
+    except Exception as e:
+        st.error(f"❌ No se pudo guardar el pedido: {e}")
+        return False
 
 def agregar_hamburguesa(nombre, precio):
-    client = get_connection()
-    data = {"nombre": nombre, "precio": float(precio)}
-    client.table("hamburguesas").insert(data).execute()
+    try:
+        client = get_connection()
+        data = {"nombre": str(nombre), "precio": float(precio)}
+        client.table("hamburguesas").insert(data).execute()
+    except Exception as e:
+        st.error(f"❌ Error al agregar producto: {e}")
 
 def actualizar_precio_hamburguesa(hamburguesa_id, nuevo_precio):
-    client = get_connection()
-    client.table("hamburguesas").update({"precio": float(nuevo_precio)}).eq("id", hamburguesa_id).execute()
+    try:
+        client = get_connection()
+        client.table("hamburguesas").update({"precio": float(nuevo_precio)}).eq("id", hamburguesa_id).execute()
+    except Exception as e:
+        st.error(f"❌ Error al actualizar precio: {e}")
 
 def eliminar_hamburguesa(hamburguesa_id):
-    client = get_connection()
-    client.table("hamburguesas").delete().eq("id", hamburguesa_id).execute()
+    try:
+        client = get_connection()
+        client.table("hamburguesas").delete().eq("id", hamburguesa_id).execute()
+    except Exception as e:
+        st.error(f"❌ Error al eliminar producto: {e}")
