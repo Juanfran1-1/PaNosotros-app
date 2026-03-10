@@ -8,20 +8,20 @@ from data.modificador_db import (
     eliminar_hamburguesa,
 )
 
-# 1. Configuración de página
+
 st.set_page_config(page_title="PA' NOSOTROS", page_icon="logo.png", layout="wide")
 
-# 2. Aplicar el CSS centralizado
+
 aplicar_estilos()
 
-# BLOQUEO DE SEGURIDAD
+
 
 if "authenticated" not in st.session_state or not st.session_state.authenticated:
     st.warning("⚠️ Por favor, inicia sesión para continuar.")
     
-    # Creamos un botón que lo lleva a la página principal
+    # botón que lo lleva a la página principal
     if st.button("Ir al Inicio", type="secondary"):
-        st.switch_page("PaNosotros.py") # <--- Asegurate de que el nombre coincida con tu archivo principal
+        st.switch_page("PaNosotros.py") 
     
     st.stop()
 
@@ -56,7 +56,7 @@ with st.form("form_agregar_hamburguesa"):
     nombre_nuevo = st.text_input("Nombre")
     precio_nuevo = st.number_input("Precio", min_value=0.0, step=100.0)
     
-    # Botón Agregar: Tipo PRIMARY para que sea VERDE
+    # Botón Agregar
     submit_agregar = st.form_submit_button("Agregar hamburguesa")
 
     if submit_agregar:
@@ -99,7 +99,7 @@ if not df_hamburguesas.empty:
         key="nuevo_precio"
     )
 
-    # Botón Actualizar: Tipo PRIMARY para que sea VERDE
+    # Botón Actualizar
     if st.button("Actualizar precio", type="primary"):
         if nuevo_precio <= 0:
             st.error("El precio debe ser mayor a 0.")
@@ -124,7 +124,7 @@ if not df_hamburguesas.empty:
     fila_eliminar = df_hamburguesas[df_hamburguesas["nombre"] == hamburguesa_eliminar].iloc[0]
     hamburguesa_id_eliminar = int(fila_eliminar["id"])
 
-    # Botón Eliminar: Tipo SECONDARY para que sea ROJO
+    # Botón Eliminar
     if st.button("Eliminar hamburguesa", type="secondary"):
         try:
             eliminar_hamburguesa(hamburguesa_id_eliminar)

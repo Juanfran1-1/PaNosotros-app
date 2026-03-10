@@ -1,6 +1,7 @@
 import streamlit as st
 from utils.diseno import aplicar_estilos
 
+
 st.set_page_config(
     page_title="PA' NOSOTROS",
     page_icon="logo.png",

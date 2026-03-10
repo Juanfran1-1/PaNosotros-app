@@ -4,7 +4,7 @@ import toml
 
 def get_connection():
     try:
-        # Intentamos leer el archivo secrets.toml
+        # leer el archivo secrets.toml
         with open(".streamlit/secrets.toml", "r") as f:
             secrets = toml.load(f)
         

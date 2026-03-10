@@ -9,7 +9,7 @@ def aplicar_estilos():
         }
         
         /* 2. TEXTOS CUERPO PRINCIPAL */
-        /* Forzamos color café para que no queden letras blancas invisibles */
+        /*color café para que no queden letras blancas invisibles */
         [data-testid="stMain"] p, 
         [data-testid="stMain"] li, 
         [data-testid="stMain"] label,
@@ -17,7 +17,7 @@ def aplicar_estilos():
             color: #4A2C2A !important;
         }
 
-        /* 3. BARRA LATERAL (Sidebar) */
+        /* 3. BARRA LATERAL (Sidebar) */  
         [data-testid="stSidebar"] { 
             background-color: #4A2C2A !important; 
         }
@@ -48,7 +48,7 @@ def aplicar_estilos():
             color: white !important; /* Texto siempre blanco */
         }
 
-        /* Aseguramos que el texto dentro del botón sea blanco (evita letras negras) */
+        /* Aseguramos que el texto dentro del botón sea blanco  */
         .stButton > button p, .stButton > button span {
             color: white !important;
         }
@@ -69,7 +69,7 @@ def aplicar_estilos():
             background-color: #B71C1C !important;
         }
 
-        /* 6. INPUTS Y SELECTORES (Adiós a las cajas negras) */
+        /* 6. INPUTS Y SELECTORES */
         /* Cajas de selección, texto y números */
         div[data-baseweb="select"] > div, 
         .stTextInput input, 
@@ -112,7 +112,7 @@ def aplicar_estilos():
             border-bottom: none !important;
         }
 
-        /* Forzamos color café a TODO lo que esté en el header: iconos, links y botones */
+        
         header[data-testid="stHeader"] svg, 
         header[data-testid="stHeader"] a, 
         header[data-testid="stHeader"] button {
@@ -130,8 +130,6 @@ def aplicar_estilos():
             background-color: rgba(74, 44, 42, 0.05) !important; /* Un sutil brillo café al pasar el mouse */
             border-radius: 50%;
         }
-
-        /* Específicamente para el texto de 'Share' que suele ser rebelde */
         header[data-testid="stHeader"] span {
             color: #4A2C2A !important;
         }

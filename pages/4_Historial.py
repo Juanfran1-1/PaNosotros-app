@@ -3,20 +3,20 @@ import streamlit as st
 from data.modificador_db import cargar_datos
 from utils.diseno import aplicar_estilos
 
-# 1. Configuración de página (Debe ser lo primero)
+
 st.set_page_config(page_title="PA' NOSOTROS", page_icon="logo.png", layout="wide")
 
-# 2. Aplicar el CSS centralizado
+
 aplicar_estilos()
 
-# BLOQUEO DE SEGURIDAD
+
 
 if "authenticated" not in st.session_state or not st.session_state.authenticated:
     st.warning("⚠️ Por favor, inicia sesión para continuar.")
     
-    # Creamos un botón que lo lleva a la página principal
+    # botón que lo lleva a la página principal
     if st.button("Ir al Inicio", type="secondary"):
-        st.switch_page("PaNosotros.py") # <--- Asegurate de que el nombre coincida con tu archivo principal
+        st.switch_page("PaNosotros.py") 
     
     st.stop()
 
@@ -66,7 +66,6 @@ try:
     df_mostrar = df_mostrar.sort_values(by="fecha", ascending=False)
 
     # Formatear la fecha para que incluya la hora (Día/Mes/Año Hora:Minutos)
-    # Creamos una columna auxiliar para mostrar, así no rompemos el filtro original
     df_mostrar["Fecha y Hora"] = df_mostrar["fecha"].dt.strftime('%d/%m/%Y %H:%M')
 
 except Exception as e:

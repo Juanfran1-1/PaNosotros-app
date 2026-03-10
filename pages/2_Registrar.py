@@ -4,20 +4,20 @@ import time
 from data.modificador_db import guardar_pedido, cargar_hamburguesas
 from utils.diseno import aplicar_estilos
 
-# 1. Configuración de página
+
 st.set_page_config(page_title="PA' NOSOTROS", page_icon="logo.png", layout="wide")
 
-# 2. Aplicar el CSS centralizado
+
 aplicar_estilos()
 
-# --- BLOQUEO DE SEGURIDAD ---
+
 
 if "authenticated" not in st.session_state or not st.session_state.authenticated:
     st.warning("⚠️ Por favor, inicia sesión para continuar.")
     
-    # Creamos un botón que lo lleva a la página principal
+    # botón que lo lleva a la página principal
     if st.button("Ir al Inicio", type="secondary"):
-        st.switch_page("PaNosotros.py") # <--- Asegurate de que el nombre coincida con tu archivo principal
+        st.switch_page("PaNosotros.py") 
     
     st.stop()
 
@@ -40,7 +40,7 @@ with col1:
 with col2:
     cantidad = st.number_input("Cantidad", min_value=1, step=1, value=1)
 
-# Botón Agregar: Lo ponemos como 'secondary' para que use el color de marca (Rojo)
+# Botón Agregar
 if st.button("➕ Agregar al pedido", type="primary"):
     encontrada = False
     for item in st.session_state.pedido_actual:
@@ -63,11 +63,12 @@ else:
     total_hamburguesas = 0
     total_pedido = 0
 
-    h1, h2, h3, h4 = st.columns([4, 1, 2, 1])
+    h1, h2, h3, h4 , h5 = st.columns([3, 1, 2, 1 , 1])
     h1.markdown("**Producto**")
     h2.markdown("**Cant.**")
     h3.markdown("**Subtotal**")
-    h4.markdown("**Quitar**")
+    h4.markdown("**Eliminar Unidad**")
+    h5.markdown("Quitar")
 
     for i, item in enumerate(st.session_state.pedido_actual):
         precio = df_hamburguesas.loc[df_hamburguesas["nombre"] == item["tipo"], "precio"].values[0]
@@ -75,16 +76,19 @@ else:
         total_hamburguesas += item["cantidad"]
         total_pedido += subtotal
 
-        c1, c2, c3, c4 = st.columns([4, 1, 2, 1])
+        c1, c2, c3, c4 , c5 = st.columns([3, 1, 2, 1 , 1])
         c1.write(item['tipo'])
         c2.write(f"{item['cantidad']}x")
         c3.write(f"${subtotal:,.0f}")
+        c5.button("X", key=f"quitar_{i}", type="secondary", on_click=lambda idx=i: st.session_state.pedido_actual.pop(idx) or st.rerun())
 
-        # Botón de eliminar (X): Rojo (secondary)
-        if c4.button("❌", key=f"eliminar_{i}", type="secondary"):
-            st.session_state.pedido_actual.pop(i)
+        # Botón de eliminar (X)
+        if c4.button("-", key=f"eliminar_{i}", type="secondary"):
+            item["cantidad"] -= 1
+            c2.write(f"{item['cantidad']}x")
+            if item["cantidad"] <= 0:
+                st.session_state.pedido_actual.pop(i)
             st.rerun()
-
     st.divider()
 
     t1, t2 = st.columns(2)
@@ -111,7 +115,7 @@ else:
     g1, g2 = st.columns(2)
 
     with g1:
-        # BOTÓN GUARDAR: Verde (primary)
+        # BOTÓN GUARDAR
         if st.button("✅ GUARDAR PEDIDO", use_container_width=True, type="primary"):
             if cliente.strip() == "":
                 st.error("Falta el nombre del cliente.")
@@ -131,7 +135,7 @@ else:
                     time.sleep(1.5)
                     st.rerun()
     with g2:
-        # BOTÓN VACIAR: Rojo (secondary)
+        # BOTÓN VACIAR
         if st.button("🗑️ VACIAR CARRITO", use_container_width=True, type="secondary"):
             st.session_state.pedido_actual = []
             st.warning("Se vació el pedido actual.")
