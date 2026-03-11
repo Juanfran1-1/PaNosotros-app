@@ -1,33 +1,24 @@
 import streamlit as st
 from utils.diseno import aplicar_estilos
-
 from data.modificador_db import (
     cargar_hamburguesas,
     agregar_hamburguesa,
-    actualizar_precio_hamburguesa,
+    actualizar_hamburguesa_completa,
     eliminar_hamburguesa,
 )
 
-
 st.set_page_config(page_title="PA' NOSOTROS", page_icon="logo.png", layout="wide")
-
 
 aplicar_estilos()
 
-
-
 if "authenticated" not in st.session_state or not st.session_state.authenticated:
     st.warning("⚠️ Por favor, inicia sesión para continuar.")
-    
-    # botón que lo lleva a la página principal
     if st.button("Ir al Inicio", type="secondary"):
         st.switch_page("PaNosotros.py") 
-    
     st.stop()
 
 st.subheader("🍔 Productos")
 
-# --- TRY PARA CARGAR ---
 try:
     df_hamburguesas = cargar_hamburguesas()
 except Exception as e:
@@ -43,95 +34,92 @@ else:
         df_hamburguesas.rename(columns={
             "id": "ID",
             "nombre": "Nombre",
-            "precio": "Precio"
+            "precio": "Precio",
+            "foto": "Imagen",
+            "desc": "Descripción",
+            "ingredientes": "Ingredientes"
         }),
         use_container_width=True
     )
 
 st.divider()
 
-st.markdown("### Agregar nueva hamburguesa")
+# --- SECCIÓN: AGREGAR ---
+with st.expander("Agregar nueva hamburguesa"):
+    with st.form("form_agregar", clear_on_submit=True):
+        col1, col2 = st.columns(2)
+        with col1:
+            nuevo_nombre = st.text_input("Nombre de la hamburguesa")
+            nuevo_precio = st.number_input("Precio", min_value=0.0, step=100.0)
+        
+        with col2:
+            nueva_foto = st.text_input("Nombre del archivo de imagen", placeholder="ejemplo: Hamburguesa.jpg")
+            nuevos_ingredientes = st.text_area("Ingredientes (separados por coma)", placeholder="Cheddar, Panceta, Cebolla")
 
-with st.form("form_agregar_hamburguesa"):
-    nombre_nuevo = st.text_input("Nombre")
-    precio_nuevo = st.number_input("Precio", min_value=0.0, step=100.0)
-    
-    # Botón Agregar
-    submit_agregar = st.form_submit_button("Agregar hamburguesa")
+        nueva_desc = st.text_input("Descripción corta", placeholder="Combo de 5 mini burgers + papas")
 
-    if submit_agregar:
-        if nombre_nuevo.strip() == "":
-            st.error("El nombre no puede estar vacío.")
-        elif precio_nuevo <= 0:
-            st.error("El precio debe ser mayor a 0.")
-        else:
-            nombres_existentes = df_hamburguesas["nombre"].str.lower().tolist()
-            if nombre_nuevo.strip().lower() in nombres_existentes:
-                st.warning("Esa hamburguesa ya existe.")
+        if st.form_submit_button("Agregar", type="primary"):
+            if not nuevo_nombre or nuevo_precio <= 0:
+                st.error("Nombre y Precio son obligatorios.")
             else:
                 try:
-                    agregar_hamburguesa(nombre_nuevo.strip(), precio_nuevo)
-                    st.success("Hamburguesa agregada correctamente.")
+                    agregar_hamburguesa(nuevo_nombre, nuevo_precio, nueva_foto, nueva_desc, nuevos_ingredientes)
+                    st.success(f"¡{nuevo_nombre} agregada con éxito!")
                     st.rerun()
                 except Exception as e:
-                    st.error(f"No se pudo agregar: {e}")
+                    st.error(f"Error al guardar: {e}")
 
-st.divider()
-
+# --- SECCIÓN: EDITAR ---
 if not df_hamburguesas.empty:
-    st.markdown("### Editar precio")
+    with st.expander("Editar hamburguesa"):
+        hamburguesa_editar = st.selectbox(
+            "Seleccionar hamburguesa para modificar",
+            df_hamburguesas["nombre"].tolist(),
+            key="editar_hamburguesa"
+        )
 
-    hamburguesa_editar = st.selectbox(
-        "Seleccionar hamburguesa",
-        df_hamburguesas["nombre"].tolist(),
-        key="editar_hamburguesa"
-    )
+        fila = df_hamburguesas[df_hamburguesas["nombre"] == hamburguesa_editar].iloc[0]
+        hamburguesa_id = int(fila["id"])
 
-    fila = df_hamburguesas[df_hamburguesas["nombre"] == hamburguesa_editar].iloc[0]
-    hamburguesa_id = int(fila["id"])
-    precio_actual = float(fila["precio"])
+        with st.form("form_edicion_total"):
+            col1, col2 = st.columns(2)
+            with col1:
+                edit_precio = st.number_input("Precio ($)", min_value=0.0, step=100.0, value=float(fila["precio"]))
+            with col2:
+                edit_desc = st.text_input("Descripción corta", value=fila.get("desc", ""))
+                edit_ing = st.text_area("Ingredientes (separados por coma)", value=fila.get("ingredientes", ""))
 
-    nuevo_precio = st.number_input(
-        "Nuevo precio",
-        min_value=0.0,
-        step=100.0,
-        value=precio_actual,
-        key="nuevo_precio"
-    )
+            st.info("💡 Tip: Para los ingredientes usa el formato: Cheddar, Panceta, Cebolla")
 
-    # Botón Actualizar
-    if st.button("Actualizar precio", type="primary"):
-        if nuevo_precio <= 0:
-            st.error("El precio debe ser mayor a 0.")
-        else:
+            if st.form_submit_button("Guardar todos los cambios", type="primary"):
+                if edit_precio <= 0:
+                    st.error("El precio es obligatorio y debe ser mayor a 0.")
+                else:
+                    try:
+                        actualizar_hamburguesa_completa(hamburguesa_id, edit_precio, edit_desc, edit_ing)
+                        st.success("¡Hamburguesa actualizada correctamente!")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Error al actualizar: {e}")
+
+    # --- SECCIÓN: ELIMINAR ---
+    with st.expander("Eliminar hamburguesa"):
+        hamburguesa_eliminar = st.selectbox(
+            "Hamburguesa a eliminar",
+            df_hamburguesas["nombre"].tolist(),
+            key="eliminar_hamburguesa"
+        )
+
+        fila_eliminar = df_hamburguesas[df_hamburguesas["nombre"] == hamburguesa_eliminar].iloc[0]
+        hamburguesa_id_eliminar = int(fila_eliminar["id"])
+
+        if st.button("Eliminar hamburguesa", type="secondary"):
             try:
-                actualizar_precio_hamburguesa(hamburguesa_id, nuevo_precio)
-                st.success("Precio actualizado correctamente.")
+                eliminar_hamburguesa(hamburguesa_id_eliminar)
+                st.success("Hamburguesa eliminada correctamente.")
                 st.rerun()
             except Exception as e:
-                st.error(f"No se pudo actualizar: {e}")
-
-    st.divider()
-
-    st.markdown("### Eliminar hamburguesa")
-
-    hamburguesa_eliminar = st.selectbox(
-        "Hamburguesa a eliminar",
-        df_hamburguesas["nombre"].tolist(),
-        key="eliminar_hamburguesa"
-    )
-
-    fila_eliminar = df_hamburguesas[df_hamburguesas["nombre"] == hamburguesa_eliminar].iloc[0]
-    hamburguesa_id_eliminar = int(fila_eliminar["id"])
-
-    # Botón Eliminar
-    if st.button("Eliminar hamburguesa", type="secondary"):
-        try:
-            eliminar_hamburguesa(hamburguesa_id_eliminar)
-            st.success("Hamburguesa eliminada correctamente.")
-            st.rerun()
-        except Exception as e:
-            st.error(f"No se pudo eliminar: {e}")
+                st.error(f"No se pudo eliminar: {e}")
             
 if st.sidebar.button("Cerrar Sesión"):
     st.session_state.authenticated = False

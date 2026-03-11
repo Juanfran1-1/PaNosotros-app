@@ -7,7 +7,7 @@ from utils.diseno import aplicar_estilos
 from data.modificador_db import cargar_datos, cargar_hamburguesas
 from services.metricas import calcular_metricas, calcular_hamburguesas_mes
 
-# 1. Configuración de página (Debe ser lo primero)
+# 1. Configuración de página
 st.set_page_config(page_title="PA' NOSOTROS", page_icon="logo.png", layout="wide")
 
 # 2. Aplicar el CSS centralizado
@@ -15,18 +15,15 @@ aplicar_estilos()
 
 if "authenticated" not in st.session_state or not st.session_state.authenticated:
     st.warning("⚠️ Por favor, inicia sesión para continuar.")
-    
-    # Creamos un botón que lo lleva a la página principal
     if st.button("Ir al Inicio", type="secondary"):
-        st.switch_page("PaNosotros.py") # <--- Asegurate de que el nombre coincida con tu archivo principal
-    
+        st.switch_page("PaNosotros.py") 
     st.stop()
 
 # Configuración de encabezado
 st.title("Dashboard de Ventas")
 st.divider()
 
-# --- TRY PARA CARGAR DATOS ---
+# --- CARGA DE DATOS ---
 try:
     df = cargar_datos()
     df_hamburguesas = cargar_hamburguesas()
@@ -37,35 +34,45 @@ except Exception as e:
 if df.empty:
     st.info("Todavía no hay pedidos cargados. ¡A empezar a vender!")
 else:
-    # --- TRY PARA CÁLCULOS DE MÉTRICAS ---
+    # --- FILTRO ESTRICTO (SOLO COBRADO) ---
+    # Limpiamos el texto para evitar errores de espacios
+    df['estado'] = df['estado'].astype(str).str.strip()
+    
+    # SOLO sumamos lo que ya pasó por caja
+    df_cobrado = df[df["estado"].isin(["Pagado", "Terminado"])].copy()
+
+    # --- CÁLCULO DE MÉTRICAS ---
+    # Nota: Pasamos df_cobrado para el dinero, pero podrías pasar df completo si quieres 
+    # que 'pedidos_hoy' cuente también los pendientes. Aquí usamos df_cobrado para todo.
     try:
-        ventas_hoy, pedidos_hoy, ventas_mes, pedidos_mes, efectivo, digital = calcular_metricas(df)
+        ventas_hoy, pedidos_hoy, ventas_mes, pedidos_mes, efectivo, digital = calcular_metricas(df_cobrado)
+        
         TIPOS_HAMBURGUESA = df_hamburguesas["nombre"].tolist()
-        conteo = calcular_hamburguesas_mes(df, TIPOS_HAMBURGUESA)
+        conteo = calcular_hamburguesas_mes(df_cobrado, TIPOS_HAMBURGUESA)
     except Exception as e:
         st.error(f"Error al procesar las métricas: {e}")
         st.stop()
 
-    st.subheader("Hoy")
+    # --- BLOQUE DE MÉTRICAS VISUALES ---
+    st.subheader("Ventas Confirmadas (Hoy)")
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("💰 Ventas Hoy", f"${ventas_hoy:,.0f}")
-    c2.metric("📦 Pedidos Hoy", pedidos_hoy)
-    c3.metric("💵 Efectivo", f"${efectivo:,.0f}")
-    c4.metric("💳 Virtual", f"${digital:,.0f}")
+    c1.metric("💰 Cobrado Hoy", f"${ventas_hoy:,.0f}")
+    c2.metric("📦 Entregas Pagas", pedidos_hoy)
+    c3.metric("💵 En Efectivo", f"${efectivo:,.0f}")
+    c4.metric("💳 En Virtual", f"${digital:,.0f}")
 
-    st.subheader("Mes actual")
+    st.subheader("Resumen Mes Confirmado")
     m1, m2 = st.columns(2)
-    m1.metric("📈 Total Ventas Mes", f"${ventas_mes:,.0f}")
-    m2.metric("🍔 Total Pedidos Mes", pedidos_mes)
+    m1.metric("📈 Ventas Totales Mes", f"${ventas_mes:,.0f}")
+    m2.metric("🍔 Hamburguesas Pagas", pedidos_mes)
 
     st.divider()
 
-    # 2. GRÁFICOS DE GESTIÓN
+    # --- GRÁFICOS ---
     col_izq, col_der = st.columns(2)
 
     with col_izq:
-        st.subheader("Hamburguesas más vendidas")
-        # --- TRY PARA EL GRÁFICO DE BARRAS ---
+        st.subheader("Hamburguesas más vendidas (Pagadas)")
         try:
             df_conteo = pd.DataFrame({
                 "Hamburguesa": list(conteo.keys()),
@@ -80,8 +87,7 @@ else:
             st.error(f"Error al generar gráfico de barras: {e}")
 
     with col_der:
-        st.subheader("💳 Métodos de Pago")
-        # --- TRY PARA EL GRÁFICO DE TORTA ---
+        st.subheader("💳 Métodos de Pago Confirmados")
         try:
             df_pagos = pd.DataFrame({
                 "Método": ["Efectivo", "Virtual"],
@@ -93,13 +99,6 @@ else:
             st.plotly_chart(fig_pie, use_container_width=True)
         except Exception as e:
             st.error(f"Error al generar gráfico de torta: {e}")
-
-    # 3. DETALLE POR TIPO (Métricas individuales)
-    st.subheader("Detalle por producto (Unidades)")
-    if TIPOS_HAMBURGUESA:
-        cols = st.columns(len(TIPOS_HAMBURGUESA))
-        for i, tipo in enumerate(TIPOS_HAMBURGUESA):
-            cols[i].metric(tipo, conteo.get(tipo, 0))
 
 if st.sidebar.button("Cerrar Sesión"):
     st.session_state.authenticated = False

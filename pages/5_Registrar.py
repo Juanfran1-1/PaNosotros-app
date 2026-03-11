@@ -100,12 +100,14 @@ else:
     
     col_e1, col_e2 = st.columns(2)
     with col_e1:
-        tipo_entrega = st.radio("¿Cómo se entrega?", ["Take Away", "Delivery"], horizontal=True)
+        tipo_entrega = st.radio("¿Cómo se entrega?", ["Retiro", "Delivery"], horizontal=True)
     
     direccion = ""
     if tipo_entrega == "Delivery":
         with col_e2:
             direccion = st.text_input("📍 Dirección de envío")
+    else:
+        direccion = "Retira en local"
 
     metodo_pago = st.selectbox("Método de pago", ["Efectivo", "Digital"])
 
@@ -127,7 +129,17 @@ else:
                 detalle_productos = " | ".join(f"{item['cantidad']}x {item['tipo']}" for item in st.session_state.pedido_actual)
                 fecha_y_hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 
-                exito = guardar_pedido(fecha_y_hora, detalle_productos, cliente.strip(), total_pedido, metodo_pago, tipo_entrega, direccion.strip())
+                # SE ENVÍA EL ESTADO INICIAL AQUÍ
+                exito = guardar_pedido(
+                    fecha_y_hora, 
+                    detalle_productos, 
+                    cliente.strip(), 
+                    total_pedido, 
+                    metodo_pago, 
+                    tipo_entrega, 
+                    direccion.strip(),
+                    "Pendiente de Pago"
+                )
 
                 if exito:
                     st.session_state.pedido_actual = []

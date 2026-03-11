@@ -1,7 +1,6 @@
 import streamlit as st
 from utils.diseno import aplicar_estilos
 
-
 st.set_page_config(
     page_title="PA' NOSOTROS",
     page_icon="logo.png",
@@ -10,15 +9,15 @@ st.set_page_config(
 
 aplicar_estilos()
 
-# --- FUNCIÓN DE LOGIN ---
+# --- FUNCIÓN DE LOGIN CORREGIDA ---
 def login():
+    # Solo inicializar si no existe, para no pisar el valor en un refresh
     if "authenticated" not in st.session_state:
         st.session_state.authenticated = False
 
     if not st.session_state.authenticated:
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
-            # Sub-columnas para centrar la imagen
             c1, c2, c3 = st.columns([1, 2, 1])
             with c2:
                 try:
@@ -26,7 +25,6 @@ def login():
                     st.title("Iniciar Sesión")
                 except:
                     pass
-
             
             usuario_ingresado = st.text_input("Usuario")
             clave_ingresada = st.text_input("Contraseña", type="password")
@@ -52,9 +50,7 @@ def login():
     return True
 
 if login():
-
     col1, col2, col3 = st.columns([1, 1, 1]) 
-
     with col2:
         try:
             st.image("logo.png", width=250)

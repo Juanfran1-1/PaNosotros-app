@@ -20,7 +20,7 @@ def cargar_datos():
         st.error(f"⚠️ Error al cargar el historial: {e}")
         return pd.DataFrame()
 
-def guardar_pedido(fecha, detalle, cliente, monto, metodo_pago, entrega, direccion):
+def guardar_pedido(fecha, detalle, cliente, monto, metodo_pago, entrega, direccion, estado="Pendiente de Pago"):
     try:
         client = get_connection()
         data = {
@@ -30,7 +30,8 @@ def guardar_pedido(fecha, detalle, cliente, monto, metodo_pago, entrega, direcci
             "monto": int(monto), 
             "metodo_pago": str(metodo_pago),
             "entrega": str(entrega),      
-            "direccion": str(direccion)  
+            "direccion": str(direccion),
+            "estado": str(estado)
         }
         client.table("pedidos").insert(data).execute()
         return True
@@ -38,21 +39,40 @@ def guardar_pedido(fecha, detalle, cliente, monto, metodo_pago, entrega, direcci
         st.error(f"❌ No se pudo guardar el pedido: {e}")
         return False
 
-def agregar_hamburguesa(nombre, precio):
+def actualizar_estado_pedido(pedido_id, nuevo_estado):
     try:
         client = get_connection()
-        data = {"nombre": str(nombre), "precio": float(precio)}
+        client.table("pedidos").update({"estado": str(nuevo_estado)}).eq("id", pedido_id).execute()
+        return True
+    except Exception as e:
+        st.error(f"❌ Error al actualizar estado: {e}")
+        return False
+
+def agregar_hamburguesa(nombre, precio, foto, desc, ingredientes):
+    try:
+        client = get_connection()
+        data = {
+            "nombre": str(nombre), 
+            "precio": float(precio),
+            "foto": str(foto),
+            "desc": str(desc),
+            "ingredientes": str(ingredientes) # Se guarda como texto separado por comas
+        }
         client.table("hamburguesas").insert(data).execute()
     except Exception as e:
         st.error(f"❌ Error al agregar producto: {e}")
-
-def actualizar_precio_hamburguesa(hamburguesa_id, nuevo_precio):
+def actualizar_hamburguesa_completa(hamburguesa_id,precio, desc, ingredientes):
     try:
         client = get_connection()
-        client.table("hamburguesas").update({"precio": float(nuevo_precio)}).eq("id", hamburguesa_id).execute()
+        data = {
+            "precio": float(precio),
+            "desc": str(desc),
+            "ingredientes": str(ingredientes)
+        }
+        # Actualizamos la fila que coincide con el ID
+        client.table("hamburguesas").update(data).eq("id", hamburguesa_id).execute()
     except Exception as e:
-        st.error(f"❌ Error al actualizar precio: {e}")
-
+        st.error(f"❌ Error al actualizar producto: {e}")
 def eliminar_hamburguesa(hamburguesa_id):
     try:
         client = get_connection()
