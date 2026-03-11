@@ -1,6 +1,6 @@
 import pandas as pd
 import streamlit as st
-from data.database import get_connection
+from .database import get_connection
 
 def cargar_hamburguesas():
     try:
