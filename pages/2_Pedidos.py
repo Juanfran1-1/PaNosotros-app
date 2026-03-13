@@ -52,6 +52,7 @@ def mostrar_gestion_pedidos(filtros):
             
             with col_info:
                 st.subheader(f"{p['cliente']} - {p['metodo_pago']}")
+                st.subheader(f"Telefono: {p['numero']}")
                 st.subheader(f"{p['estado']}")
                 st.write(f"🍔 {p['detalle']}")
                 # Verificamos si hay notas (la web a veces no las manda)

@@ -57,18 +57,27 @@ def mostrar_tabla_viva(fecha_seleccionada):
         # Mostrar tabla
         hora_argentina = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=3)
         st.caption(f"Última actualización: {hora_argentina.strftime('%H:%M:%S')}")
+        
+        # Renombramos las columnas para que queden prolijas
+        columnas_renombradas = {
+            "Fecha y Hora": "Fecha y Hora",
+            "detalle": "Detalle",
+            "cliente": "Cliente",
+            "numero": "📱 WhatsApp", 
+            "monto": "Monto",
+            "metodo_pago": "Método de Pago",
+            "entrega": "Tipo de Entrega",
+            "direccion": "Dirección",
+            "estado": "Estado"
+        }
+
+        # Seleccionamos el orden de las columnas incluyendo el número
+        orden_columnas = ["Fecha y Hora", "Detalle", "Cliente", "📱 WhatsApp", "Monto", "Método de Pago", "Tipo de Entrega", "Dirección", "Estado"]
+
         st.dataframe(
-            df_mostrar.rename(columns={
-                "Fecha y Hora": "Fecha y Hora",
-                "detalle": "Detalle",
-                "cliente": "Cliente",
-                "monto": "Monto",
-                "metodo_pago": "Método de Pago",
-                "entrega": "Tipo de Entrega",
-                "direccion": "Dirección",
-                "estado": "Estado"
-            })[["Fecha y Hora", "Detalle", "Cliente", "Monto", "Método de Pago", "Tipo de Entrega", "Dirección", "Estado"]],
-            use_container_width=True
+            df_mostrar.rename(columns=columnas_renombradas)[orden_columnas],
+            use_container_width=True,
+            hide_index=True
         )
     except Exception as e:
         st.error(f"Error al actualizar la tabla: {e}")

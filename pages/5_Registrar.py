@@ -88,6 +88,7 @@ else:
 
     st.markdown("### 👤 Datos de Cliente y Pago")
     cliente = st.text_input("Nombre del cliente")
+    numero_tel = st.text_input("Número de WhatsApp (ej: 2215556677)") # <--- NUEVO CAMPO
     
     col_e1, col_e2 = st.columns(2)
     with col_e1:
@@ -108,8 +109,8 @@ else:
 
     with g1:
         if st.button("✅ GUARDAR PEDIDO", use_container_width=True, type="primary"):
-            if cliente.strip() == "":
-                st.error("Falta el nombre del cliente.")
+            if cliente.strip() == "" or numero_tel.strip() == "":
+                st.error("Faltan datos del cliente (nombre o teléfono).")
             elif tipo_entrega == "Delivery" and (not direccion or direccion == "Retira en local"):
                 st.error("Si es Delivery, tenés que poner una dirección.")
             elif not st.session_state.pedido_actual:
@@ -129,6 +130,7 @@ else:
                     fecha_y_hora, 
                     detalle_productos, 
                     cliente.strip(), 
+                    numero_tel.strip(), # <--- Enviamos el número
                     total_pedido, 
                     metodo_pago, 
                     tipo_entrega, 
