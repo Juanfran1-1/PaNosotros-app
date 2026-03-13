@@ -20,13 +20,12 @@ def cargar_datos():
         st.error(f"⚠️ Error al cargar el historial: {e}")
         return pd.DataFrame()
 
-def guardar_pedido(fecha, detalle, cliente, monto, metodo_pago, entrega, direccion):
+def guardar_pedido(fecha, detalle, cliente, monto, metodo_pago, entrega, direccion, estado):
     try:
         client = get_connection()
-        # LÓGICA DE ESTADO INICIAL
-        # Si es transferencia -> Pendiente de Pago
-        # Si es efectivo -> Cocinando
-        estado_inicial = "Pendiente de Pago" if metodo_pago == "Digital" else "Cocinando"
+        
+        # Ya no calculamos el estado acá adentro, 
+        # lo recibimos directamente desde el Streamlit para que sea 100% igual a la web.
         
         data = {
             "fecha": str(fecha),
@@ -36,14 +35,13 @@ def guardar_pedido(fecha, detalle, cliente, monto, metodo_pago, entrega, direcci
             "metodo_pago": str(metodo_pago),
             "entrega": str(entrega),      
             "direccion": str(direccion),
-            "estado": estado_inicial, # Estado dinámico
+            "estado": str(estado), # Recibimos el estado dinámico (Cocinando o Pendiente de Pago)
         }
         client.table("pedidos").insert(data).execute()
         return True
     except Exception as e:
         st.error(f"❌ Error al guardar: {e}")
         return False
-    
 
 def actualizar_estado_pedido(pedido_id, nuevo_estado):
     try:

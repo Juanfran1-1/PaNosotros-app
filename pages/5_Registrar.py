@@ -121,8 +121,10 @@ else:
                 # 🟢 LÓGICA DE ESTADO DINÁMICO:
                 # Si es Transferencia -> Pendiente de Pago (Hay que chequear el celu)
                 # Si es Efectivo -> Cocinando (Se cobra al entregar)
+                # 1. Definís el estado según el pago
                 estado_inicial = "Pendiente de Pago" if metodo_pago == "Transferencia" else "Cocinando"
 
+                # 2. Se lo pasás a la función (asegurándote que guardar_pedido acepte ese argumento)
                 exito = guardar_pedido(
                     fecha_y_hora, 
                     detalle_productos, 
@@ -131,6 +133,7 @@ else:
                     metodo_pago, 
                     tipo_entrega, 
                     direccion.strip(),
+                    estado_inicial 
                 )
 
                 if exito:
