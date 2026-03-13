@@ -1,5 +1,6 @@
 import streamlit as st
 import time
+import datetime
 from utils.diseno import aplicar_estilos
 from data.modificador_db import cargar_datos, actualizar_estado_pedido
 
@@ -40,7 +41,10 @@ def mostrar_gestion_pedidos(filtros):
         st.write("No hay pedidos con esos estados ahora mismo.")
         return
 
-    st.caption(f"Última actualización: {time.strftime('%H:%M:%S')}")
+    hora_argentina = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=3)
+
+    # Lo mostramos formateado
+    st.caption(f"Última actualización: {hora_argentina.strftime('%H:%M:%S')}")
 
     for _, p in df_activos.iterrows():
         with st.container():

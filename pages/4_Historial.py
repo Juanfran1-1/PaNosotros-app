@@ -3,6 +3,7 @@ import streamlit as st
 from data.modificador_db import cargar_datos
 from utils.diseno import aplicar_estilos
 import time
+import datetime
 
 st.set_page_config(page_title="PA' NOSOTROS", page_icon="logo.png", layout="wide")
 
@@ -54,7 +55,8 @@ def mostrar_tabla_viva(fecha_seleccionada):
         df_mostrar["Fecha y Hora"] = df_mostrar["fecha"].dt.strftime('%d/%m/%Y %H:%M')
 
         # Mostrar tabla
-        st.caption(f"Última actualización: {time.strftime('%H:%M:%S')}")
+        hora_argentina = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=3)
+        st.caption(f"Última actualización: {hora_argentina.strftime('%H:%M:%S')}")
         st.dataframe(
             df_mostrar.rename(columns={
                 "Fecha y Hora": "Fecha y Hora",
