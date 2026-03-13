@@ -13,74 +13,78 @@ if "authenticated" not in st.session_state or not st.session_state.authenticated
     st.stop()
 
 st.title("👨‍🍳 Gestión de Pedidos en Vivo")
+st.subheader("Si el pedido es Transferencia, los estados son 'Pendiente de Pago' → 'Cocinando' → 'Terminado'.")
+st.subheader("Si el pedido es Efectivo, los estados son 'Cocinando' → 'Pendiente de Pago' → 'Terminado'.")
 st.markdown("---")
 
-# El multiselect lo dejamos FUERA del fragmento para que el usuario pueda interactuar 
-# sin que se le cierre el menú desplegable cada vez que la página busca datos nuevos.
+# 1. Agregamos "Cocinando" a la lista de estados visibles por defecto
 estados_visibles = st.multiselect(
     "Ver pedidos con estado:",
-    ["Pendiente de Pago", "Pagado", "Terminado", "Rechazado"],
-    default=["Pendiente de Pago", "Pagado"]
+    ["Pendiente de Pago", "Cocinando", "Terminado", "Rechazado"],
+    default=["Pendiente de Pago", "Cocinando"]
 )
 
 # --- FRAGMENTO DE ACTUALIZACIÓN AUTOMÁTICA ---
 @st.fragment(run_every=30)
 def mostrar_gestion_pedidos(filtros):
-    # Carga de datos fresca
     df = cargar_datos()
     
-    st.caption(f"Última actualización de cocina: {time.strftime('%H:%M:%S')}")
-
     if df.empty:
-        st.info("No hay pedidos registrados por el momento.")
+        st.info("No hay pedidos registrados.")
         return
 
-    # Filtrar el DataFrame según la selección del multiselect
-    df_filtrado = df[df['estado'].isin(filtros)]
+    # Filtramos por los estados seleccionados en el multiselect
+    df_activos = df[df['estado'].isin(filtros)]
 
-    if df_filtrado.empty:
-        st.write("No hay pedidos con esos estados.")
-    else:
-        # Dibujamos cada pedido como una tarjeta
-        for _, p in df_filtrado.iterrows():
-            # Definir color según estado
-            color_estado = "#D32F2F" if p['estado'] == "Pendiente de Pago" else "#2E7D32"
+    if df_activos.empty:
+        st.write("No hay pedidos con esos estados ahora mismo.")
+        return
+
+    st.caption(f"Última actualización: {time.strftime('%H:%M:%S')}")
+
+    for _, p in df_activos.iterrows():
+        with st.container():
+            col_info, col_accion = st.columns([3, 1])
             
-            with st.container(border=True):
-                col_info, col_btns = st.columns([3, 1])
-                
-                with col_info:
-                    st.markdown(f"### 👤 {p['cliente']}")
-                    st.markdown(f"**Estado:** :{color_estado}[{p['estado']}]")
-                    st.write(f"**🍔 Detalle:** {p['detalle']}")
-                    st.write(f"**💰 Monto:** ${p['monto']} | **Método:** {p['metodo_pago']}")
-                    
-                    if p['entrega'] == "Delivery":
-                        st.write(f"📍 **Dirección:** {p['direccion']}")
-                    else:
-                        st.write("🏬 **Retira en local**")
+            with col_info:
+                st.subheader(f"{p['cliente']} - {p['metodo_pago']}")
+                st.subheader(f"{p['estado']}")
+                st.write(f"🍔 {p['detalle']}")
+                # Verificamos si hay notas (la web a veces no las manda)
+                if 'notas' in p and p['notas']: 
+                    st.info(f"📝 {p['notas']}")
+                st.caption(f"💰 ${p['monto']} | {p['entrega']} | {p['fecha']}")
 
-                with col_btns:
-                    st.write("¿Acciones?")
-                    
-                    # 1. Botón para PAGADO
+            with col_accion:
+                # --- LÓGICA PARA TRANSFERENCIA (Basado en lo que manda tu JS) ---
+                if p['metodo_pago'] == "Transferencia":
                     if p['estado'] == "Pendiente de Pago":
-                        if st.button("💰 Marcar Pagado", key=f"pag_{p['id']}", use_container_width=True):
-                            if actualizar_estado_pedido(p['id'], "Pagado"):
-                                st.rerun()
+                        if st.button("💳 Cobrar", key=f"pay_{p['id']}", use_container_width=True):
+                            actualizar_estado_pedido(p['id'], "Cocinando")
+                            st.rerun()
+                    elif p['estado'] == "Cocinando":
+                        if st.button("✅ Cerrar pedido", key=f"done_{p['id']}", use_container_width=True, type="primary"):
+                            actualizar_estado_pedido(p['id'], "Terminado")
+                            st.rerun()
 
-                        # 2. Botón para RECHAZAR
-                        if st.button("❌ Rechazar", key=f"rech_{p['id']}", use_container_width=True):
-                            if actualizar_estado_pedido(p['id'], "Rechazado"):
-                                st.rerun()
+                # --- LÓGICA PARA EFECTIVO ---
+                else:
+                    if p['estado'] == "Cocinando":
+                        if st.button("✅ Cerrar pedido", key=f"done_ef_{p['id']}", use_container_width=True , type="primary"):
+                            actualizar_estado_pedido(p['id'], "Pendiente de Pago")
+                            st.rerun()
+                    elif p['estado'] == "Pendiente de Pago":
+                        if st.button("💵 Cobrado", key=f"pay_ef_{p['id']}", use_container_width=True, type="primary"):
+                            actualizar_estado_pedido(p['id'], "Terminado")
+                            st.rerun()
+                
+                # Botón cancelar siempre disponible
+                if (p['estado'] != "Terminado" and p['estado'] != "Rechazado") and st.button("🚫 Cancelar", key=f"can_{p['id']}", use_container_width=True, type="secondary"):
+                    actualizar_estado_pedido(p['id'], "Rechazado")
+                    st.rerun()
+        st.divider()
 
-                    # 3. Botón para TERMINADO
-                    if p['estado'] == "Pagado":
-                        if st.button("✅ Terminado", key=f"term_{p['id']}", use_container_width=True):
-                            if actualizar_estado_pedido(p['id'], "Terminado"):
-                                st.rerun()
-
-# Llamada a la función del fragmento pasando los filtros elegidos
+# Llamada a la función
 mostrar_gestion_pedidos(estados_visibles)
 
 if st.sidebar.button("Cerrar Sesión"):

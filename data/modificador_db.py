@@ -20,9 +20,14 @@ def cargar_datos():
         st.error(f"⚠️ Error al cargar el historial: {e}")
         return pd.DataFrame()
 
-def guardar_pedido(fecha, detalle, cliente, monto, metodo_pago, entrega, direccion, estado="Pendiente de Pago"):
+def guardar_pedido(fecha, detalle, cliente, monto, metodo_pago, entrega, direccion):
     try:
         client = get_connection()
+        # LÓGICA DE ESTADO INICIAL
+        # Si es transferencia -> Pendiente de Pago
+        # Si es efectivo -> Cocinando
+        estado_inicial = "Pendiente de Pago" if metodo_pago == "Digital" else "Cocinando"
+        
         data = {
             "fecha": str(fecha),
             "detalle": str(detalle),
@@ -31,13 +36,14 @@ def guardar_pedido(fecha, detalle, cliente, monto, metodo_pago, entrega, direcci
             "metodo_pago": str(metodo_pago),
             "entrega": str(entrega),      
             "direccion": str(direccion),
-            "estado": str(estado)
+            "estado": estado_inicial, # Estado dinámico
         }
         client.table("pedidos").insert(data).execute()
         return True
     except Exception as e:
-        st.error(f"❌ No se pudo guardar el pedido: {e}")
+        st.error(f"❌ Error al guardar: {e}")
         return False
+    
 
 def actualizar_estado_pedido(pedido_id, nuevo_estado):
     try:
