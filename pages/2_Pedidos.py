@@ -14,15 +14,14 @@ if "authenticated" not in st.session_state or not st.session_state.authenticated
     st.stop()
 
 st.title("👨‍🍳 Gestión de Pedidos en Vivo")
-st.subheader("Si el pedido es Transferencia, los estados son 'Pendiente de Pago' → 'Cocinando' → 'Terminado'.")
-st.subheader("Si el pedido es Efectivo, los estados son 'Cocinando' → 'Pendiente de Pago' → 'Terminado'.")
+st.subheader("Flujo Mercado Pago: 'Pendiente de Pago' → 'Pagado' (Automático) → 'Cocinando' → 'Terminado'.")
 st.markdown("---")
 
-# 1. Agregamos "Cocinando" a la lista de estados visibles por defecto
+# 1. Agregamos "Pagado" a la lista de estados visibles
 estados_visibles = st.multiselect(
     "Ver pedidos con estado:",
-    ["Pendiente de Pago", "Cocinando", "Terminado", "Rechazado"],
-    default=["Pendiente de Pago", "Cocinando"]
+    ["Pendiente de Pago", "Pagado", "Cocinando", "Terminado", "Rechazado"],
+    default=["Pendiente de Pago", "Pagado", "Cocinando"]
 )
 
 # --- FRAGMENTO DE ACTUALIZACIÓN AUTOMÁTICA ---
@@ -51,18 +50,40 @@ def mostrar_gestion_pedidos(filtros):
             col_info, col_accion = st.columns([3, 1])
             
             with col_info:
-                st.subheader(f"{p['cliente']} - {p['metodo_pago']}")
+                # Resaltado especial si ya está pagado por Mercado Pago
+                titulo_cliente = f"✅ {p['cliente']}" if p['estado'] == "Pagado" else p['cliente']
+                st.subheader(f"{titulo_cliente} - {p['metodo_pago']}")
                 st.subheader(f"Telefono: {p['numero']}")
-                st.subheader(f"{p['estado']}")
+                
+                # Color del estado
+                if p['estado'] == "Pagado":
+                    st.success(f"ESTADO: {p['estado']}")
+                elif p['estado'] == "Pendiente de Pago":
+                    st.warning(f"ESTADO: {p['estado']}")
+                else:
+                    st.subheader(f"{p['estado']}")
+
                 st.write(f"🍔 {p['detalle']}")
-                # Verificamos si hay notas (la web a veces no las manda)
                 if 'notas' in p and p['notas']: 
                     st.info(f"📝 {p['notas']}")
                 st.caption(f"💰 ${p['monto']} | {p['entrega']} | {p['fecha']}")
 
             with col_accion:
-                # --- LÓGICA PARA TRANSFERENCIA (Basado en lo que manda tu JS) ---
-                if p['metodo_pago'] == "Transferencia":
+                # --- LÓGICA PARA MERCADO PAGO ---
+                if p['metodo_pago'] == "Mercado Pago":
+                    if p['estado'] == "Pendiente de Pago":
+                        st.info("⏳ Esperando pago...")
+                    elif p['estado'] == "Pagado":
+                        if st.button("👨‍🍳 Empezar a Cocinar", key=f"cook_mp_{p['id']}", use_container_width=True, type="primary"):
+                            actualizar_estado_pedido(p['id'], "Cocinando")
+                            st.rerun()
+                    elif p['estado'] == "Cocinando":
+                        if st.button("✅ Cerrar pedido", key=f"done_mp_{p['id']}", use_container_width=True, type="primary"):
+                            actualizar_estado_pedido(p['id'], "Terminado")
+                            st.rerun()
+
+                # --- LÓGICA PARA TRANSFERENCIA ---
+                elif p['metodo_pago'] == "Transferencia":
                     if p['estado'] == "Pendiente de Pago":
                         if st.button("💳 Cobrar", key=f"pay_{p['id']}", use_container_width=True):
                             actualizar_estado_pedido(p['id'], "Cocinando")

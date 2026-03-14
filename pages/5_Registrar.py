@@ -88,7 +88,7 @@ else:
 
     st.markdown("### 👤 Datos de Cliente y Pago")
     cliente = st.text_input("Nombre del cliente")
-    numero_tel = st.text_input("Número de WhatsApp (ej: 2215556677)") # <--- NUEVO CAMPO
+    numero_tel = st.text_input("Número de WhatsApp (ej: 2215556677)") 
     
     col_e1, col_e2 = st.columns(2)
     with col_e1:
@@ -99,8 +99,8 @@ else:
         with col_e2:
             direccion = st.text_input("📍 Dirección de envío")
 
-    # 🟢 CAMBIO: Usamos "Transferencia" para que coincida con la Web y el Dashboard
-    metodo_pago = st.selectbox("Método de pago", ["Efectivo", "Transferencia"])
+    # 🟢 CAMBIO: Agregamos Mercado Pago
+    metodo_pago = st.selectbox("Método de pago", ["Efectivo", "Transferencia", "Mercado Pago"])
 
     st.write("") 
 
@@ -120,17 +120,15 @@ else:
                 fecha_y_hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 
                 # 🟢 LÓGICA DE ESTADO DINÁMICO:
-                # Si es Transferencia -> Pendiente de Pago (Hay que chequear el celu)
-                # Si es Efectivo -> Cocinando (Se cobra al entregar)
-                # 1. Definís el estado según el pago
-                estado_inicial = "Pendiente de Pago" if metodo_pago == "Transferencia" else "Cocinando"
+                # Si es Mercado Pago o Transferencia -> Pendiente de Pago
+                # Si es Efectivo -> Cocinando
+                estado_inicial = "Pendiente de Pago" if metodo_pago in ["Transferencia", "Mercado Pago"] else "Cocinando"
 
-                # 2. Se lo pasás a la función (asegurándote que guardar_pedido acepte ese argumento)
                 exito = guardar_pedido(
                     fecha_y_hora, 
                     detalle_productos, 
                     cliente.strip(), 
-                    numero_tel.strip(), # <--- Enviamos el número
+                    numero_tel.strip(), 
                     total_pedido, 
                     metodo_pago, 
                     tipo_entrega, 
