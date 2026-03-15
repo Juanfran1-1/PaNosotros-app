@@ -40,13 +40,13 @@ def guardar_pedido(fecha, detalle, cliente, numero, monto, metodo_pago, entrega,
         st.error(f"❌ Error al guardar: {e}")
         return False
 
-def actualizar_estado_pedido(pedido_id, nuevo_estado):
+def actualizar_disponibilidad(hamburguesa_id, estado):
     try:
         client = get_connection()
-        client.table("pedidos").update({"estado": str(nuevo_estado)}).eq("id", pedido_id).execute()
+        client.table("hamburguesas").update({"disponible": bool(estado)}).eq("id", hamburguesa_id).execute()
         return True
     except Exception as e:
-        st.error(f"❌ Error al actualizar estado: {e}")
+        st.error(f"❌ Error al cambiar disponibilidad: {e}")
         return False
 
 def agregar_hamburguesa(nombre, precio, foto, desc, ingredientes):
