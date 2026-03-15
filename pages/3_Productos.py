@@ -1,10 +1,12 @@
 import streamlit as st
+import pandas as pd
 from utils.diseno import aplicar_estilos
 from data.modificador_db import (
     cargar_hamburguesas,
     agregar_hamburguesa,
     actualizar_hamburguesa_completa,
     eliminar_hamburguesa,
+    actualizar_disponibilidad  # <--- Agregada
 )
 
 st.set_page_config(page_title="PA' NOSOTROS", page_icon="logo.png", layout="wide")
@@ -41,6 +43,17 @@ else:
         }),
         use_container_width=True
     )
+
+st.markdown("### ⚡ Control de Stock")
+if not df_hamburguesas.empty:
+    cols = st.columns(3)
+    for i, (_, fila) in enumerate(df_hamburguesas.iterrows()):
+        with cols[i % 3]:
+            disponible = fila.get("disponible", True)
+            label = f"✅ {fila['nombre']}" if disponible else f"❌ {fila['nombre']}"
+            if st.button(label, key=f"stock_{fila['id']}", use_container_width=True):
+                actualizar_disponibilidad(int(fila["id"]), not disponible)
+                st.rerun()
 
 st.divider()
 
