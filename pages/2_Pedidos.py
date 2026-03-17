@@ -2,7 +2,7 @@ import streamlit as st
 import time
 import datetime
 from utils.diseno import aplicar_estilos
-from data.modificador_db import cargar_datos, actualizar_disponibilidad
+from data.modificador_db import cargar_datos, actualizar_estado_pedido
 
 # Configuración básica
 st.set_page_config(page_title="PA' NOSOTROS - GESTIÓN", page_icon="logo.png", layout="wide")
@@ -55,9 +55,6 @@ def mostrar_gestion_pedidos(filtros):
                 st.subheader(f"Telefono: {p['numero']}")
                 st.subheader(f"{p['estado']}")
                 st.write(f"🍔 {p['detalle']}")
-                # Verificamos si hay notas (la web a veces no las manda)
-                if 'notas' in p and p['notas']: 
-                    st.info(f"📝 {p['notas']}")
                 st.caption(f"💰 ${p['monto']} | {p['entrega']} | {p['fecha']}")
 
             with col_accion:
@@ -65,27 +62,27 @@ def mostrar_gestion_pedidos(filtros):
                 if p['metodo_pago'] == "Transferencia":
                     if p['estado'] == "Pendiente de Pago":
                         if st.button("💳 Cobrar", key=f"pay_{p['id']}", use_container_width=True):
-                            actualizar_disponibilidad(p['id'], "Cocinando")
+                            actualizar_estado_pedido(p['id'], "Cocinando")
                             st.rerun()
                     elif p['estado'] == "Cocinando":
                         if st.button("✅ Cerrar pedido", key=f"done_{p['id']}", use_container_width=True, type="primary"):
-                            actualizar_disponibilidad(p['id'], "Terminado")
+                            actualizar_estado_pedido(p['id'], "Terminado")
                             st.rerun()
 
                 # --- LÓGICA PARA EFECTIVO ---
                 else:
                     if p['estado'] == "Cocinando":
                         if st.button("✅ Cerrar pedido", key=f"done_ef_{p['id']}", use_container_width=True , type="primary"):
-                            actualizar_disponibilidad(p['id'], "Pendiente de Pago")
+                            actualizar_estado_pedido(p['id'], "Pendiente de Pago")
                             st.rerun()
                     elif p['estado'] == "Pendiente de Pago":
                         if st.button("💵 Cobrado", key=f"pay_ef_{p['id']}", use_container_width=True, type="primary"):
-                            actualizar_disponibilidad(p['id'], "Terminado")
+                            actualizar_estado_pedido(p['id'], "Terminado")
                             st.rerun()
                 
                 # Botón cancelar siempre disponible
                 if (p['estado'] != "Terminado" and p['estado'] != "Rechazado") and st.button("🚫 Cancelar", key=f"can_{p['id']}", use_container_width=True, type="secondary"):
-                    actualizar_disponibilidad(p['id'], "Rechazado")
+                    actualizar_estado_pedido(p['id'], "Rechazado")
                     st.rerun()
         st.divider()
 

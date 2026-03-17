@@ -83,11 +83,11 @@ def eliminar_hamburguesa(hamburguesa_id):
     except Exception as e:
         st.error(f"❌ Error al eliminar producto: {e}")
         
-def actualizar_disponibilidad(hamburguesa_id, estado):
+def actualizar_estado_pedido(pedido_id, estado):
     try:
         client = get_connection()
-        client.table("hamburguesas").update({"disponible": bool(estado)}).eq("id", hamburguesa_id).execute()
+        client.table("pedidos").update({"estado": str(estado)}).eq("id", pedido_id).execute()
         return True
     except Exception as e:
-        st.error(f"❌ Error al cambiar disponibilidad: {e}")
+        st.error(f"❌ Error al cambiar estado del pedido: {e}")
         return False
