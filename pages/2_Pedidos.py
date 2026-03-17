@@ -15,14 +15,14 @@ if "authenticated" not in st.session_state or not st.session_state.authenticated
 
 st.title("👨‍🍳 Gestión de Pedidos en Vivo")
 st.subheader("Si el pedido es Transferencia, los estados son 'Pendiente de Pago' → 'Cocinando' → 'Terminado'.")
-st.subheader("Si el pedido es Efectivo, los estados son 'Confirmar Pedido' → 'Cocinando' → 'Pendiente de Pago' → 'Terminado'.")
+st.subheader("Si el pedido es Efectivo, los estados son 'Esperando Confirmacion' → 'Cocinando' → 'Pendiente de Pago' → 'Terminado'.")
 st.markdown("---")
 
 # 1. Agregamos "Cocinando" a la lista de estados visibles por defecto
 estados_visibles = st.multiselect(
     "Ver pedidos con estado:",
-    ["Pendiente de Pago", "Cocinando", "Terminado", "Rechazado"],
-    default=["Pendiente de Pago", "Cocinando"]
+    ["Pendiente de Pago", "Esperando Confirmacion", "Cocinando", "Terminado", "Rechazado"],
+    default=["Pendiente de Pago", "Esperando Confirmacion", "Cocinando"]
 )
 
 # --- FRAGMENTO DE ACTUALIZACIÓN AUTOMÁTICA ---
