@@ -15,7 +15,7 @@ if "authenticated" not in st.session_state or not st.session_state.authenticated
 
 st.title("👨‍🍳 Gestión de Pedidos en Vivo")
 st.subheader("Si el pedido es Transferencia, los estados son 'Pendiente de Pago' → 'Cocinando' → 'Terminado'.")
-st.subheader("Si el pedido es Efectivo, los estados son 'Cocinando' → 'Pendiente de Pago' → 'Terminado'.")
+st.subheader("Si el pedido es Efectivo, los estados son 'Confirmar Pedido' → 'Cocinando' → 'Pendiente de Pago' → 'Terminado'.")
 st.markdown("---")
 
 # 1. Agregamos "Cocinando" a la lista de estados visibles por defecto
@@ -71,7 +71,11 @@ def mostrar_gestion_pedidos(filtros):
 
                 # --- LÓGICA PARA EFECTIVO ---
                 else:
-                    if p['estado'] == "Cocinando":
+                    if p['estado'] == "Esperando Confirmacion":
+                        if st.button("✅ Confirmar pedido", key=f"confirm_{p['id']}", use_container_width=True, type="primary"):
+                            actualizar_estado_pedido(p['id'], "Cocinando")
+                            st.rerun()
+                    elif p['estado'] == "Cocinando":
                         if st.button("✅ Cerrar pedido", key=f"done_ef_{p['id']}", use_container_width=True , type="primary"):
                             actualizar_estado_pedido(p['id'], "Pendiente de Pago")
                             st.rerun()
