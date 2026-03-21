@@ -91,3 +91,15 @@ def actualizar_estado_pedido(pedido_id, estado):
     except Exception as e:
         st.error(f"❌ Error al cambiar estado del pedido: {e}")
         return False
+    
+def cargar_configuracion():
+    try:
+        client = get_connection()
+        res = client.table("configuracion").select("*").execute()
+        if res.data:
+            return res.data[0]  # Asumimos que solo hay una fila de configuración
+        else:
+            return {}  # Retornamos un diccionario vacío si no hay configuración
+    except Exception as e:
+        st.error(f"⚠️ Error al cargar configuración: {e}")
+        return {}
