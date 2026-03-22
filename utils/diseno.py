@@ -133,5 +133,29 @@ def aplicar_estilos():
         header[data-testid="stHeader"] span {
             color: #4A2C2A !important;
         }
+        
+        /* Contenedor principal del toggle */
+        .stElementContainer div[data-testid="stCheckbox"] {
+            background-color: #808080;
+            padding: 15px 25px;
+            border-radius: 15px;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        /* Color cuando está ACTIVO (Abierto) */
+        div[data-testid="stWidgetLabel"] + div [data-baseweb="checkbox"] [role="switch"][aria-checked="false"] {
+            background-color: #2ecc71 !important; /* Verde éxito */
+        }
+
+        /* Color cuando está INACTIVO (Cerrado) */
+        div[data-testid="stWidgetLabel"] + div [data-baseweb="checkbox"] [role="switch"][aria-checked="true"] {
+            background-color: #e74c3c !important; /* Rojo error */
+        }
+        
+    
     </style>
     """, unsafe_allow_html=True)

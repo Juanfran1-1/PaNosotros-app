@@ -50,7 +50,7 @@ with col_alias:
     alias_input = st.text_input("Alias de Mercado Pago", value=config.get("alias_mp", ""))
 with col_btn_alias:
     st.write(" ") # Espaciado
-    if st.button("Guardar Alias", use_container_width=True):
+    if st.button("Guardar Alias", use_container_width=True,type="primary"):
         actualizar_campo("alias_mp", alias_input)
 
 st.divider()
@@ -63,7 +63,7 @@ with col_envio:
     envio_input = st.number_input("Costo de Envío ($)", value=int(config.get("COSTO_ENVIO", 0)), step=50)
 with col_btn_envio:
     st.write(" ")
-    if st.button("Guardar Envío", use_container_width=True):
+    if st.button("Guardar Envío", use_container_width=True,type="primary"):
         actualizar_campo("COSTO_ENVIO", envio_input)
 
 st.divider()
@@ -76,5 +76,5 @@ with col_ws:
     ws_input = st.text_input("Número (ej: 5491122334455)", value=config.get("whatsapp", ""))
 with col_btn_ws:
     st.write(" ")
-    if st.button("Guardar WhatsApp", use_container_width=True):
+    if st.button("Guardar WhatsApp", use_container_width=True,type="primary"):
         actualizar_campo("whatsapp", ws_input)
