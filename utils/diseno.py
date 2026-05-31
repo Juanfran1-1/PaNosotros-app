@@ -323,6 +323,24 @@ def aplicar_estilos():
                     border-radius: 14px;
                 }
             }
+            
+            .pa-home-card {
+                background: var(--pa-panel);
+                border: 1px solid var(--pa-line);
+                border-radius: 18px;
+                padding: 18px;
+                text-align: center;
+                box-shadow: 0 10px 24px rgba(15,16,18,.05);
+            }
+
+            .pa-home-card h3 {
+                margin-bottom: 8px !important;
+            }
+
+            .pa-home-card p {
+                color: var(--pa-muted) !important;
+                font-size: .9rem;
+            }
         </style>
         """,
         unsafe_allow_html=True,
