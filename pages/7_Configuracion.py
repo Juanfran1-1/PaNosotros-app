@@ -1,5 +1,5 @@
 import streamlit as st
-from utils.diseno import aplicar_estilos
+from utils.diseno import aplicar_estilos, page_header, section_note
 from data.database import get_connection
 from data.modificador_db import cargar_configuracion
 
@@ -22,10 +22,14 @@ def actualizar_campo(columna, valor):
 # Carga inicial
 config = cargar_configuracion()
 
-st.title("⚙️ Panel de Control")
+page_header(
+    "Configuración",
+    "Ajustes generales del local, pagos, envíos y textos visibles en el menú."
+)
 
 # --- SECCIÓN 1: ESTADO DEL LOCAL (INSTANTÁNEO) ---
 st.subheader("🚀 Estado del Local")
+section_note("Este cambio se refleja en el menú del cliente. Si cerrás el local, pueden ver la carta pero no pedir.")
 estado_actual = config.get("abierto", True)
 
 # Al tocar el toggle, se ejecuta la actualización inmediatamente
@@ -68,7 +72,39 @@ with col_btn_envio:
 
 st.divider()
 
-# --- SECCIÓN 4: CONTACTO (WHATSAPP) ---
+# --- SECCIÓN 4: RETIRO EN LOCAL ---
+st.subheader("📍 Retiro en local")
+col_dir_local, col_btn_dir_local = st.columns([3, 1])
+
+with col_dir_local:
+    dir_local_input = st.text_input("Dirección del local", value=config.get("direccion_local", ""))
+with col_btn_dir_local:
+    st.write(" ")
+    if st.button("Guardar Dirección", use_container_width=True,type="primary"):
+        actualizar_campo("direccion_local", dir_local_input)
+
+st.divider()
+
+# --- SECCIÓN 5: PROMOS ---
+st.subheader("🎁 Promos")
+col_promo_titulo, col_btn_promo_titulo = st.columns([3, 1])
+
+with col_promo_titulo:
+    promo_titulo_input = st.text_input(
+        "Título del carrusel de promos",
+        value=config.get("promo_titulo", ""),
+        placeholder="Día de la Mini Burger"
+    )
+with col_btn_promo_titulo:
+    st.write(" ")
+    if st.button("Guardar Título", use_container_width=True,type="primary"):
+        actualizar_campo("promo_titulo", promo_titulo_input)
+
+st.caption("Este texto aparece en el carrusel de promos del inicio.")
+
+st.divider()
+
+# --- SECCIÓN 6: CONTACTO (WHATSAPP) ---
 st.subheader("📱 WhatsApp de Pedidos")
 col_ws, col_btn_ws = st.columns([3, 1])
 

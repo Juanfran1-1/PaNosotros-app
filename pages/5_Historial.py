@@ -1,7 +1,7 @@
 import pandas as pd
 import streamlit as st
 from data.modificador_db import cargar_datos
-from utils.diseno import aplicar_estilos
+from utils.diseno import aplicar_estilos, page_header
 import time
 import datetime
 
@@ -19,7 +19,10 @@ if st.sidebar.button("Cerrar Sesión"):
     st.session_state.authenticated = False
     st.rerun()
 
-st.subheader("Historial de pedidos")
+page_header(
+    "Historial de pedidos",
+    "Consultá pedidos anteriores, filtrá por fecha y revisá estado, entrega y monto."
+)
 
 # Colocamos el logo y el filtro de fecha fuera del fragmento para que no parpadeen
 col1, col2, col3 = st.columns([2, 2, 1])

@@ -4,7 +4,7 @@ import plotly.express as px
 import time
 
 from datetime import datetime
-from utils.diseno import aplicar_estilos
+from utils.diseno import aplicar_estilos, page_header
 from data.modificador_db import cargar_datos, cargar_hamburguesas
 from services.metricas import calcular_metricas, calcular_hamburguesas_mes
 
@@ -21,9 +21,11 @@ if "authenticated" not in st.session_state or not st.session_state.authenticated
     st.stop()
 
 # Configuración de encabezado
-st.title("📊 Dashboard de Ventas")
+page_header(
+    "Dashboard de ventas",
+    "Vista rápida de ingresos, pedidos y productos más vendidos."
+)
 st.caption(f"Última actualización: {time.strftime('%H:%M:%S')}")
-st.divider()
 
 # --- CARGA DE DATOS ---
 try:

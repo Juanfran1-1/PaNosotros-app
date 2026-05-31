@@ -1,5 +1,5 @@
 import streamlit as st
-from utils.diseno import aplicar_estilos
+from utils.diseno import aplicar_estilos, page_header
 
 st.set_page_config(
     page_title="PA' NOSOTROS",
@@ -57,7 +57,10 @@ if login():
         except:
             pass
 
-    st.title("¡Bienvenido a PA' NOSOTROS!")
+    page_header(
+        "PA' NOSOTROS",
+        "Panel interno para gestionar pedidos, productos, promos y configuración del menú."
+    )
     st.markdown(
         """
         ### 🍔 UNA HAMBURGUESERÍA DEDICADA SOLO PARA NOSOTROS

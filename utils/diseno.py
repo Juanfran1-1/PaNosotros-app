@@ -1,161 +1,329 @@
 import streamlit as st
 
+
+def page_header(titulo, subtitulo=None):
+    subtitulo_html = f"<p>{subtitulo}</p>" if subtitulo else ""
+    st.markdown(
+        f"""
+        <div class="pa-page-header">
+            <h1>{titulo}</h1>
+            {subtitulo_html}
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def section_note(texto):
+    st.markdown(f'<div class="pa-section-note">{texto}</div>', unsafe_allow_html=True)
+
+
 def aplicar_estilos():
-    st.markdown("""
-    <style>
-        /* 1. FONDO GENERAL */
-        .stApp { 
-            background-color: #FDFCF0; 
-        }
-        
-        /* 2. TEXTOS CUERPO PRINCIPAL */
-        /*color café para que no queden letras blancas invisibles */
-        [data-testid="stMain"] p, 
-        [data-testid="stMain"] li, 
-        [data-testid="stMain"] label,
-        [data-testid="stMain"] span {
-            color: #4A2C2A !important;
-        }
+    st.markdown(
+        """
+        <style>
+            :root {
+                --pa-bg: #f6f3ea;
+                --pa-panel: #ffffff;
+                --pa-panel-soft: #fbfaf5;
+                --pa-text: #171717;
+                --pa-muted: #6f6a60;
+                --pa-line: #ded8ca;
+                --pa-dark: #0f1012;
+                --pa-dark-soft: #1b1c20;
+                --pa-yellow: #ffc400;
+                --pa-yellow-hover: #f2b600;
+                --pa-red: #d93636;
+                --pa-red-hover: #bd2c2c;
+                --pa-green: #1f9d55;
+            }
 
-        /* 3. BARRA LATERAL (Sidebar) */  
-        [data-testid="stSidebar"] { 
-            background-color: #4A2C2A !important; 
-        }
-        
-        /* Textos de la sidebar en crema para contraste */
-        [data-testid="stSidebar"] p, 
-        [data-testid="stSidebar"] span,
-        [data-testid="stSidebarNav"] span { 
-            color: #FDFCF0 !important; 
-        }
-        
-        /* Iconos de la sidebar */
-        [data-testid="stSidebarNav"] svg {
-            fill: #FDFCF0 !important;
-        }
+            .stApp {
+                background: var(--pa-bg) !important;
+                color: var(--pa-text) !important;
+            }
 
-        /* 4. TÍTULOS */
-        h1, h2, h3 { 
-            color: #4A2C2A !important; 
-        }
+            [data-testid="stMain"] {
+                background: var(--pa-bg) !important;
+            }
 
-        /* 5. BOTONES (CORREGIDOS) */
-        /* Estilo base para todos los botones */
-        .stButton > button {
-            border-radius: 8px !important;
-            font-weight: bold !important;
-            border: none !important;
-            color: white !important; /* Texto siempre blanco */
-        }
+            [data-testid="stMain"] .block-container {
+                max-width: 1220px;
+                padding-top: 3.25rem;
+                padding-bottom: 4rem;
+            }
 
-        /* Aseguramos que el texto dentro del botón sea blanco  */
-        .stButton > button p, .stButton > button span {
-            color: white !important;
-        }
+            h1, h2, h3, h4 {
+                color: var(--pa-text) !important;
+                letter-spacing: 0 !important;
+            }
 
-        /* Botón Verde (tipo 'primary') */
-        div.stButton > button[kind="primary"] {
-            background-color: #28a745 !important;
-        }
-        div.stButton > button[kind="primary"]:hover {
-            background-color: #218838 !important;
-        }
+            [data-testid="stMain"] p,
+            [data-testid="stMain"] li,
+            [data-testid="stMain"] label {
+                color: var(--pa-text) !important;
+            }
 
-        /* Botón Rojo (tipo 'secondary') */
-        div.stButton > button[kind="secondary"] {
-            background-color: #D32F2F !important;
-        }
-        div.stButton > button[kind="secondary"]:hover {
-            background-color: #B71C1C !important;
-        }
+            [data-testid="stMain"] small,
+            [data-testid="stCaptionContainer"],
+            [data-testid="stCaptionContainer"] p {
+                color: var(--pa-muted) !important;
+            }
 
-        /* 6. INPUTS Y SELECTORES */
-        /* Cajas de selección, texto y números */
-        div[data-baseweb="select"] > div, 
-        .stTextInput input, 
-        .stNumberInput input {
-            background-color: white !important;
-            color: #4A2C2A !important;
-            border: 1px solid #4A2C2A !important;
-        }
+            header[data-testid="stHeader"] {
+                background: rgba(246, 243, 234, 0.92) !important;
+                backdrop-filter: blur(10px);
+                border-bottom: 1px solid rgba(222, 216, 202, 0.7);
+            }
 
-        /* Color del texto sugerido (placeholder) */
-        input::placeholder {
-            color: #A0A0A0 !important;
-        }
+            header[data-testid="stHeader"] svg,
+            header[data-testid="stHeader"] a,
+            header[data-testid="stHeader"] button,
+            header[data-testid="stHeader"] span {
+                color: var(--pa-text) !important;
+                fill: var(--pa-text) !important;
+            }
 
-        /* 7. MÉTRICAS (Dashboard) */
-        [data-testid="stMetricValue"] {
-            color: #D32F2F !important;
-        }
-        [data-testid="stMetricLabel"] p {
-            color: #4A2C2A !important;
-        }
-        
-        /* Estilo para las tarjetas de métricas */
-        [data-testid="stMetric"] {
-            background-color: white !important;
-            padding: 15px !important;
-            border-radius: 10px !important;
-            border: 1px solid #4A2C2A !important;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.1) !important;
-        }
-        
-        /* Forzar color de los números de métricas */
-        [data-testid="stMetricValue"] div {
-            color: #D32F2F !important; /* Rojo para los números importantes */
-        }
-        
-        /* ARREGLO FINAL DEL HEADER Y TODOS SUS ÍCONOS (Estrella, Lápiz, GitHub, Menú) */
-        header[data-testid="stHeader"] {
-            background-color: #FDFCF0 !important;
-            border-bottom: none !important;
-        }
+            [data-testid="stSidebar"] {
+                background: var(--pa-dark) !important;
+                border-right: 1px solid #2a2b31;
+            }
 
-        
-        header[data-testid="stHeader"] svg, 
-        header[data-testid="stHeader"] a, 
-        header[data-testid="stHeader"] button {
-            fill: #4A2C2A !important;
-            color: #4A2C2A !important;
-            opacity: 0.6 !important; /* Suavizados para que no pesen */
-            transition: opacity 0.3s !important;
-        }
+            [data-testid="stSidebar"] * {
+                color: #f7f3e7 !important;
+            }
 
-        /* Efecto hover para todos los elementos del header */
-        header[data-testid="stHeader"] svg:hover, 
-        header[data-testid="stHeader"] a:hover, 
-        header[data-testid="stHeader"] button:hover {
-            opacity: 1 !important;
-            background-color: rgba(74, 44, 42, 0.05) !important; /* Un sutil brillo café al pasar el mouse */
-            border-radius: 50%;
-        }
-        header[data-testid="stHeader"] span {
-            color: #4A2C2A !important;
-        }
-        
-        /* Contenedor principal del toggle */
-        .stElementContainer div[data-testid="stCheckbox"] {
-            background-color: #808080;
-            padding: 15px 25px;
-            border-radius: 15px;
-            border: 1px solid #e0e0e0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
+            [data-testid="stSidebarNav"] li a {
+                border-radius: 8px;
+                margin: 2px 8px;
+            }
 
-        /* Color cuando está ACTIVO (Abierto) */
-        div[data-testid="stWidgetLabel"] + div [data-baseweb="checkbox"] [role="switch"][aria-checked="false"] {
-            background-color: #2ecc71 !important; /* Verde éxito */
-        }
+            [data-testid="stSidebarNav"] li a:hover {
+                background: #25262b !important;
+            }
 
-        /* Color cuando está INACTIVO (Cerrado) */
-        div[data-testid="stWidgetLabel"] + div [data-baseweb="checkbox"] [role="switch"][aria-checked="true"] {
-            background-color: #e74c3c !important; /* Rojo error */
-        }
-        
-    
-    </style>
-    """, unsafe_allow_html=True)
+            [data-testid="stSidebarNav"] li a[aria-current="page"],
+            [data-testid="stSidebarNav"] li a[aria-current="page"]:hover {
+                background: var(--pa-yellow) !important;
+            }
+
+            [data-testid="stSidebarNav"] li a[aria-current="page"] span {
+                color: #111111 !important;
+                font-weight: 800 !important;
+            }
+
+            .pa-page-header {
+                margin: 0 0 1.4rem;
+                padding: 1.35rem 1.45rem;
+                border: 1px solid var(--pa-line);
+                border-radius: 16px;
+                background:
+                    linear-gradient(135deg, rgba(255, 196, 0, 0.16), transparent 42%),
+                    var(--pa-panel);
+                box-shadow: 0 14px 34px rgba(15, 16, 18, 0.06);
+            }
+
+            .pa-page-header h1 {
+                margin: 0 !important;
+                font-size: clamp(1.75rem, 3vw, 2.35rem) !important;
+                font-weight: 950 !important;
+                line-height: 1.05 !important;
+            }
+
+            .pa-page-header p {
+                max-width: 780px;
+                margin: 0.55rem 0 0 !important;
+                color: var(--pa-muted) !important;
+                font-size: 1rem;
+            }
+
+            .pa-section-note {
+                margin: 0.4rem 0 1rem;
+                padding: 0.9rem 1rem;
+                border: 1px solid rgba(255, 196, 0, 0.32);
+                border-radius: 12px;
+                background: rgba(255, 196, 0, 0.1);
+                color: var(--pa-text);
+                font-weight: 650;
+            }
+
+            .stButton > button,
+            .stFormSubmitButton > button {
+                border-radius: 9px !important;
+                min-height: 42px !important;
+                font-weight: 800 !important;
+                border: 1px solid transparent !important;
+                transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease !important;
+            }
+
+            .stButton > button:focus,
+            .stFormSubmitButton > button:focus {
+                box-shadow: 0 0 0 3px rgba(255, 196, 0, 0.28) !important;
+                outline: none !important;
+            }
+
+            .stButton > button:hover,
+            .stFormSubmitButton > button:hover {
+                transform: translateY(-1px);
+            }
+
+            div.stButton > button[kind="primary"],
+            div.stFormSubmitButton > button[kind="primary"] {
+                background: var(--pa-yellow) !important;
+                border-color: var(--pa-yellow) !important;
+            }
+
+            div.stButton > button[kind="primary"] *,
+            div.stFormSubmitButton > button[kind="primary"] * {
+                color: #111111 !important;
+            }
+
+            div.stButton > button[kind="primary"]:hover,
+            div.stFormSubmitButton > button[kind="primary"]:hover {
+                background: var(--pa-yellow-hover) !important;
+                border-color: var(--pa-yellow-hover) !important;
+            }
+
+            div.stButton > button[kind="secondary"] {
+                background: var(--pa-red) !important;
+                border-color: var(--pa-red) !important;
+            }
+
+            div.stButton > button[kind="secondary"] *,
+            div.stFormSubmitButton > button[kind="secondary"] * {
+                color: #ffffff !important;
+            }
+
+            div.stButton > button[kind="secondary"]:hover {
+                background: var(--pa-red-hover) !important;
+                border-color: var(--pa-red-hover) !important;
+            }
+
+            .stTextInput input,
+            .stNumberInput input,
+            .stTextArea textarea,
+            div[data-baseweb="select"] > div {
+                background: var(--pa-panel) !important;
+                color: var(--pa-text) !important;
+                border: 1px solid var(--pa-line) !important;
+                border-radius: 8px !important;
+                box-shadow: none !important;
+            }
+
+            div[data-baseweb="select"] * {
+                color: var(--pa-text) !important;
+            }
+
+            div[data-baseweb="popover"] {
+                z-index: 999999 !important;
+            }
+
+            div[data-baseweb="popover"] ul,
+            div[data-baseweb="popover"] li {
+                background: var(--pa-panel) !important;
+                color: var(--pa-text) !important;
+            }
+
+            .stTextInput input:focus,
+            .stNumberInput input:focus,
+            .stTextArea textarea:focus {
+                border-color: var(--pa-yellow) !important;
+                box-shadow: 0 0 0 2px rgba(255, 196, 0, 0.24) !important;
+            }
+
+            input::placeholder,
+            textarea::placeholder {
+                color: #9a9489 !important;
+            }
+
+            [data-testid="stFileUploader"] section {
+                background: var(--pa-panel) !important;
+                border: 1px dashed #bfb6a2 !important;
+                border-radius: 10px !important;
+                min-height: 86px;
+            }
+
+            [data-testid="stFileUploader"] section * {
+                color: var(--pa-text) !important;
+            }
+
+            [data-testid="stFileUploader"] button {
+                background: var(--pa-dark) !important;
+                color: #ffffff !important;
+                border-radius: 8px !important;
+            }
+
+            [data-testid="stExpander"] {
+                background: var(--pa-panel) !important;
+                border: 1px solid var(--pa-line) !important;
+                border-radius: 10px !important;
+                overflow: hidden;
+                margin-bottom: 0.9rem;
+            }
+
+            [data-testid="stExpander"] details summary {
+                background: var(--pa-dark) !important;
+                color: #ffffff !important;
+                min-height: 46px;
+            }
+
+            [data-testid="stExpander"] details summary * {
+                color: #ffffff !important;
+            }
+
+            [data-testid="stExpander"] details[open] summary {
+                border-bottom: 1px solid var(--pa-line);
+            }
+
+            [data-testid="stDataFrame"],
+            [data-testid="stTable"],
+            [data-testid="stMetric"],
+            [data-testid="stAlert"] {
+                border-radius: 10px !important;
+            }
+
+            [data-testid="stDataFrame"] {
+                border: 1px solid var(--pa-line) !important;
+                box-shadow: 0 10px 24px rgba(15, 16, 18, 0.05);
+            }
+
+            [data-testid="stMetric"] {
+                background: var(--pa-panel) !important;
+                border: 1px solid var(--pa-line) !important;
+                padding: 16px !important;
+                box-shadow: 0 8px 24px rgba(15, 16, 18, 0.06) !important;
+            }
+
+            [data-testid="stMetricValue"] div {
+                color: var(--pa-red) !important;
+            }
+
+            [data-testid="stAlert"] {
+                background: #fff7d6 !important;
+                border: 1px solid #f2d46b !important;
+            }
+
+            [data-testid="stAlert"] * {
+                color: var(--pa-text) !important;
+            }
+
+            hr {
+                border-color: var(--pa-line) !important;
+            }
+
+            @media (max-width: 760px) {
+                [data-testid="stMain"] .block-container {
+                    padding-left: 1rem;
+                    padding-right: 1rem;
+                    padding-top: 2rem;
+                }
+
+                .pa-page-header {
+                    padding: 1.1rem;
+                    border-radius: 14px;
+                }
+            }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )

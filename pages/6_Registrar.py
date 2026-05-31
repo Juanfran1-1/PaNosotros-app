@@ -2,7 +2,7 @@ import streamlit as st
 from datetime import datetime
 import time
 from data.modificador_db import guardar_pedido, cargar_hamburguesas
-from utils.diseno import aplicar_estilos
+from utils.diseno import aplicar_estilos, page_header, section_note
 
 # Configuración de página
 st.set_page_config(page_title="PA' NOSOTROS - REGISTRAR", page_icon="logo.png", layout="wide")
@@ -15,7 +15,11 @@ if "authenticated" not in st.session_state or not st.session_state.authenticated
         st.switch_page("PaNosotros.py") 
     st.stop()
 
-st.title("📝 Registrar Nuevo Pedido")
+page_header(
+    "Registrar pedido",
+    "Carga manual para pedidos tomados fuera del menú web."
+)
+section_note("Esta pantalla registra pedidos simples. Las promos y extras estructurados se manejan desde el menú del cliente.")
 
 # Cargar productos desde DB
 df_hamburguesas = cargar_hamburguesas()

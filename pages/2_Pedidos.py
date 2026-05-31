@@ -1,7 +1,7 @@
 import streamlit as st
 import time
 import datetime
-from utils.diseno import aplicar_estilos
+from utils.diseno import aplicar_estilos, page_header, section_note
 from data.modificador_db import cargar_datos, actualizar_estado_pedido
 
 # Configuración básica
@@ -13,10 +13,11 @@ if "authenticated" not in st.session_state or not st.session_state.authenticated
     st.warning("⚠️ Por favor, inicia sesión para continuar.")
     st.stop()
 
-st.title("👨‍🍳 Gestión de Pedidos en Vivo")
-st.subheader("Si el pedido es Transferencia, los estados son 'Pendiente de Pago' → 'Cocinando' → 'Terminado'.")
-st.subheader("Si el pedido es Efectivo, los estados son 'Esperando Confirmacion' → 'Cocinando' → 'Pendiente de Pago' → 'Terminado'.")
-st.markdown("---")
+page_header(
+    "Pedidos en vivo",
+    "Gestioná el estado de cada pedido mientras se prepara y se cobra."
+)
+section_note("Transferencia: Pendiente de Pago → Cocinando → Terminado. Efectivo: Esperando Confirmación → Cocinando → Pendiente de Pago → Terminado.")
 
 # 1. Agregamos "Cocinando" a la lista de estados visibles por defecto
 estados_visibles = st.multiselect(
