@@ -28,18 +28,31 @@ def login():
                 except:
                     pass
 
-            usuario_ingresado = st.text_input("Usuario")
-            clave_ingresada = st.text_input("Contraseña", type="password")
+            st.text_input(
+                "Usuario",
+                key="login_user",
+                autocomplete="username"
+            )
+
+            st.text_input(
+                "Contraseña",
+                type="password",
+                key="login_pass",
+                autocomplete="current-password"
+            )
 
             if st.button("Ingresar", type="primary", use_container_width=True):
                 try:
                     user_real = st.secrets["credentials"]["user"]
                     pass_real = st.secrets["credentials"]["password"]
 
-                    if usuario_ingresado.strip() != user_real:
+                    usuario = st.session_state.get("login_user", "").strip()
+                    clave = st.session_state.get("login_pass", "").strip()
+
+                    if usuario != user_real:
                         st.error("Usuario incorrecto")
 
-                    elif clave_ingresada.strip() != pass_real:
+                    elif clave != pass_real:
                         st.error("Contraseña incorrecta")
 
                     else:
