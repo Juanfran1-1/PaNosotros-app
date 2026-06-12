@@ -85,6 +85,15 @@ def actualizar_disponibilidad(hamburguesa_id, estado):
         st.error(f"❌ Error al cambiar disponibilidad: {e}")
         return False
 
+def actualizar_visibilidad_menu(hamburguesa_id, estado):
+    try:
+        client = get_connection()
+        client.table("hamburguesas").update({"mostrar_en_menu": bool(estado)}).eq("id", hamburguesa_id).execute()
+        return True
+    except Exception as e:
+        st.error(f"❌ Error al cambiar visibilidad en el menú: {e}")
+        return False
+
 def actualizar_disponibilidad_promo(promo_id, estado):
     try:
         client = get_connection()
@@ -112,7 +121,7 @@ def agregar_hamburguesa(nombre, precio, foto, desc, ingredientes):
             "foto": str(foto),
             "desc": str(desc),
             "ingredientes": str(ingredientes),
-            "disponible": True  # <--- Agregamos esto para que nazca con stock
+            "disponible": True
         }
         client.table("hamburguesas").insert(data).execute()
     except Exception as e:

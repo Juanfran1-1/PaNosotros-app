@@ -11,7 +11,8 @@ from data.modificador_db import (
     eliminar_hamburguesa,
     eliminar_extra,
     actualizar_disponibilidad,
-    actualizar_disponibilidad_extra
+    actualizar_disponibilidad_extra,
+    actualizar_visibilidad_menu
 )
 from utils.storage import mostrar_control_encuadre, resolver_foto_menu
 
@@ -38,7 +39,7 @@ except Exception as e:
     st.stop()
 
 st.markdown("### Hamburguesas")
-section_note("Marcá como no disponible lo que se agotó en el día. Evitá eliminar productos que ya tuvieron pedidos.")
+section_note("Usá disponibilidad para marcar agotadas y mostrar en el menú para ocultar productos sorpresa o fuera de carta.")
 
 if df_hamburguesas.empty:
     st.info("No hay hamburguesas cargadas.")
@@ -50,12 +51,15 @@ else:
             "precio": "Precio",
             "foto": "Imagen",
             "desc": "Descripción",
-            "ingredientes": "Ingredientes"
+            "ingredientes": "Ingredientes",
+            "disponible": "Disponible",
+            "mostrar_en_menu": "Mostrar en menú"
         }),
         use_container_width=True
     )
 
 st.markdown("### Disponibilidad de hamburguesas")
+section_note("Si está apagada, la hamburguesa se ve como agotada pero sigue apareciendo en el menú.")
 if not df_hamburguesas.empty:
     cols = st.columns(3)
     for i, (_, fila) in enumerate(df_hamburguesas.iterrows()):
@@ -64,6 +68,20 @@ if not df_hamburguesas.empty:
             label = f"✅ {fila['nombre']}" if disponible else f"❌ {fila['nombre']}"
             if st.button(label, key=f"stock_{fila['id']}", use_container_width=True):
                 actualizar_disponibilidad(int(fila["id"]), not disponible)
+                st.rerun()
+
+st.markdown("### Mostrar en el menú")
+section_note("Si está apagada, la hamburguesa no aparece para clientes. Ideal para productos sorpresa o lanzamientos.")
+if not df_hamburguesas.empty:
+    cols_menu = st.columns(3)
+    for i, (_, fila) in enumerate(df_hamburguesas.iterrows()):
+        with cols_menu[i % 3]:
+            mostrar_en_menu = fila.get("mostrar_en_menu", True)
+            if pd.isna(mostrar_en_menu):
+                mostrar_en_menu = True
+            label = f"👁️ {fila['nombre']}" if mostrar_en_menu else f"🙈 {fila['nombre']}"
+            if st.button(label, key=f"menu_visible_{fila['id']}", use_container_width=True):
+                actualizar_visibilidad_menu(int(fila["id"]), not bool(mostrar_en_menu))
                 st.rerun()
 
 st.divider()
