@@ -13,7 +13,7 @@ from data.modificador_db import (
     actualizar_disponibilidad,
     actualizar_disponibilidad_extra
 )
-from utils.storage import resolver_foto_menu
+from utils.storage import mostrar_control_encuadre, resolver_foto_menu
 
 st.set_page_config(page_title="PA' NOSOTROS", page_icon="logo.png", layout="wide")
 
@@ -95,23 +95,25 @@ else:
                 st.rerun()
 
 with st.expander("Agregar extra"):
+    foto_extra = st.file_uploader(
+        "Foto del extra (opcional)",
+        type=["jpg", "jpeg", "png", "webp"],
+        key="foto_nuevo_extra"
+    )
+    encuadre_extra = mostrar_control_encuadre(foto_extra, "extras", "encuadre_nuevo_extra")
+
     with st.form("form_agregar_extra", clear_on_submit=True):
         col_extra_1, col_extra_2 = st.columns(2)
         with col_extra_1:
             nuevo_extra = st.text_input("Nombre del extra", placeholder="Papas noisette")
         with col_extra_2:
             precio_extra = st.number_input("Precio extra ($)", min_value=0.0, step=100.0)
-        foto_extra = st.file_uploader(
-            "Foto del extra (opcional)",
-            type=["jpg", "jpeg", "png", "webp"],
-            key="foto_nuevo_extra"
-        )
 
         if st.form_submit_button("Agregar extra", type="primary"):
             if not nuevo_extra or precio_extra <= 0:
                 st.error("Nombre y precio son obligatorios.")
             else:
-                foto_extra_url = resolver_foto_menu(foto_extra, nuevo_extra, "extras")
+                foto_extra_url = resolver_foto_menu(foto_extra, nuevo_extra, "extras", posicion_recorte=encuadre_extra)
                 if foto_extra and not foto_extra_url:
                     st.stop()
                 if agregar_extra(nuevo_extra, precio_extra, foto_extra_url):
@@ -127,20 +129,22 @@ if not df_extras.empty:
         )
         fila_extra = df_extras[df_extras["nombre"] == extra_editar].iloc[0]
 
+        edit_extra_foto = st.file_uploader(
+            "Nueva foto del extra (opcional)",
+            type=["jpg", "jpeg", "png", "webp"],
+            key=f"foto_edit_extra_{fila_extra['id']}"
+        )
+        encuadre_edit_extra = mostrar_control_encuadre(edit_extra_foto, "extras", f"encuadre_edit_extra_{fila_extra['id']}")
+
         with st.form("form_editar_extra"):
             col_edit_extra_1, col_edit_extra_2 = st.columns(2)
             with col_edit_extra_1:
                 edit_extra_nombre = st.text_input("Nombre", value=fila_extra.get("nombre", ""))
             with col_edit_extra_2:
                 edit_extra_precio = st.number_input("Precio ($)", min_value=0.0, step=100.0, value=float(fila_extra.get("precio", 0)))
-            edit_extra_foto = st.file_uploader(
-                "Nueva foto del extra (opcional)",
-                type=["jpg", "jpeg", "png", "webp"],
-                key=f"foto_edit_extra_{fila_extra['id']}"
-            )
 
             if st.form_submit_button("Guardar extra", type="primary"):
-                foto_extra_url = resolver_foto_menu(edit_extra_foto, edit_extra_nombre, "extras", fila_extra.get("foto", ""))
+                foto_extra_url = resolver_foto_menu(edit_extra_foto, edit_extra_nombre, "extras", fila_extra.get("foto", ""), encuadre_edit_extra)
                 if edit_extra_foto and not foto_extra_url:
                     st.stop()
                 if actualizar_extra_completo(int(fila_extra["id"]), edit_extra_nombre, edit_extra_precio, foto_extra_url):
@@ -164,6 +168,13 @@ st.divider()
 
 # --- SECCIÓN: AGREGAR ---
 with st.expander("Agregar hamburguesa"):
+    nueva_foto_archivo = st.file_uploader(
+        "Foto de la hamburguesa",
+        type=["jpg", "jpeg", "png", "webp"],
+        key="foto_nueva_hamburguesa"
+    )
+    encuadre_nueva_foto = mostrar_control_encuadre(nueva_foto_archivo, "productos", "encuadre_nueva_hamburguesa")
+
     with st.form("form_agregar", clear_on_submit=True):
         col1, col2 = st.columns(2)
         with col1:
@@ -174,18 +185,13 @@ with st.expander("Agregar hamburguesa"):
             nuevos_ingredientes = st.text_area("Ingredientes (separados por coma)", placeholder="Cheddar, Panceta, Cebolla")
 
         nueva_desc = st.text_input("Descripción corta", placeholder="Combo de 5 mini burgers + papas")
-        nueva_foto_archivo = st.file_uploader(
-            "Foto de la hamburguesa",
-            type=["jpg", "jpeg", "png", "webp"],
-            key="foto_nueva_hamburguesa"
-        )
 
         if st.form_submit_button("Agregar", type="primary"):
             if not nuevo_nombre or nuevo_precio <= 0:
                 st.error("Nombre y Precio son obligatorios.")
             else:
                 try:
-                    foto_url = resolver_foto_menu(nueva_foto_archivo, nuevo_nombre, "productos")
+                    foto_url = resolver_foto_menu(nueva_foto_archivo, nuevo_nombre, "productos", posicion_recorte=encuadre_nueva_foto)
                     if nueva_foto_archivo and not foto_url:
                         st.stop()
                     agregar_hamburguesa(nuevo_nombre, nuevo_precio, foto_url, nueva_desc, nuevos_ingredientes)
@@ -206,6 +212,13 @@ if not df_hamburguesas.empty:
         fila = df_hamburguesas[df_hamburguesas["nombre"] == hamburguesa_editar].iloc[0]
         hamburguesa_id = int(fila["id"])
 
+        edit_foto_archivo = st.file_uploader(
+            "Nueva foto de la hamburguesa (opcional)",
+            type=["jpg", "jpeg", "png", "webp"],
+            key=f"foto_edit_hamburguesa_{hamburguesa_id}"
+        )
+        encuadre_edit_foto = mostrar_control_encuadre(edit_foto_archivo, "productos", f"encuadre_edit_hamburguesa_{hamburguesa_id}")
+
         with st.form("form_edicion_total"):
             col1, col2 = st.columns(2)
             with col1:
@@ -213,11 +226,6 @@ if not df_hamburguesas.empty:
             with col2:
                 edit_desc = st.text_input("Descripción corta", value=fila.get("desc", ""))
                 edit_ing = st.text_area("Ingredientes (separados por coma)", value=fila.get("ingredientes", ""))
-            edit_foto_archivo = st.file_uploader(
-                "Nueva foto de la hamburguesa (opcional)",
-                type=["jpg", "jpeg", "png", "webp"],
-                key=f"foto_edit_hamburguesa_{hamburguesa_id}"
-            )
 
             st.info("💡 Tip: Para los ingredientes usa el formato: Cheddar, Panceta, Cebolla")
 
@@ -226,7 +234,7 @@ if not df_hamburguesas.empty:
                     st.error("El precio es obligatorio y debe ser mayor a 0.")
                 else:
                     try:
-                        foto_url = resolver_foto_menu(edit_foto_archivo, hamburguesa_editar, "productos", fila.get("foto", ""))
+                        foto_url = resolver_foto_menu(edit_foto_archivo, hamburguesa_editar, "productos", fila.get("foto", ""), encuadre_edit_foto)
                         if edit_foto_archivo and not foto_url:
                             st.stop()
                         actualizar_hamburguesa_completa(hamburguesa_id, edit_precio, edit_desc, edit_ing, foto_url)

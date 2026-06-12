@@ -13,7 +13,7 @@ from data.modificador_db import (
     guardar_items_promo,
     guardar_extras_promo
 )
-from utils.storage import resolver_foto_menu
+from utils.storage import mostrar_control_encuadre, resolver_foto_menu
 
 st.set_page_config(page_title="PA' NOSOTROS - PROMOS", page_icon="logo.png", layout="wide")
 aplicar_estilos()
@@ -159,6 +159,13 @@ if not df_promos.empty:
 st.divider()
 
 with st.expander("Agregar promo"):
+    nueva_foto_archivo = st.file_uploader(
+        "Foto de la promo",
+        type=["jpg", "jpeg", "png", "webp"],
+        key="foto_nueva_promo"
+    )
+    encuadre_nueva_foto = mostrar_control_encuadre(nueva_foto_archivo, "promos", "encuadre_nueva_promo")
+
     with st.form("form_agregar_promo", clear_on_submit=True):
         col1, col2 = st.columns(2)
         with col1:
@@ -176,11 +183,6 @@ with st.expander("Agregar promo"):
             key="max_variedades_nueva"
         )
         st.caption("1 = todas del mismo tipo. 2 o más = permite combinar variedades.")
-        nueva_foto_archivo = st.file_uploader(
-            "Foto de la promo",
-            type=["jpg", "jpeg", "png", "webp"],
-            key="foto_nueva_promo"
-        )
 
         mapa_hamburguesas = opciones_hamburguesas()
         variedades_nueva_promo = []
@@ -216,7 +218,7 @@ with st.expander("Agregar promo"):
             if not nuevo_nombre or nuevo_precio <= 0:
                 st.error("Nombre y precio son obligatorios.")
             else:
-                foto_url = resolver_foto_menu(nueva_foto_archivo, nuevo_nombre, "promos")
+                foto_url = resolver_foto_menu(nueva_foto_archivo, nuevo_nombre, "promos", posicion_recorte=encuadre_nueva_foto)
                 if nueva_foto_archivo and not foto_url:
                     st.stop()
                 promo_creada = agregar_promo(
@@ -252,6 +254,13 @@ if not df_promos.empty:
         fila = df_promos[df_promos["nombre"] == promo_editar].iloc[0]
         promo_id = int(fila["id"])
 
+        edit_foto_archivo = st.file_uploader(
+            "Nueva foto de la promo (opcional)",
+            type=["jpg", "jpeg", "png", "webp"],
+            key=f"foto_edit_promo_{promo_id}"
+        )
+        encuadre_edit_foto = mostrar_control_encuadre(edit_foto_archivo, "promos", f"encuadre_edit_promo_{promo_id}")
+
         with st.form("form_editar_promo"):
             col1, col2 = st.columns(2)
             with col1:
@@ -271,11 +280,6 @@ if not df_promos.empty:
                 key=f"max_variedades_edit_{promo_id}"
             )
             st.caption("1 = todas del mismo tipo. 2 o más = permite combinar variedades.")
-            edit_foto_archivo = st.file_uploader(
-                "Nueva foto de la promo (opcional)",
-                type=["jpg", "jpeg", "png", "webp"],
-                key=f"foto_edit_promo_{promo_id}"
-            )
 
             extras_actuales = df_promo_extras[df_promo_extras["promo_id"] == promo_id] if not df_promo_extras.empty else df_promo_extras
             ids_extras_actuales = set(extras_actuales["extra_id"].astype(int).tolist()) if not extras_actuales.empty else set()
@@ -320,7 +324,7 @@ if not df_promos.empty:
                 st.caption("Primero tenés que cargar hamburguesas para asociarlas a una promo.")
 
             if st.form_submit_button("Guardar promo", type="primary"):
-                foto_url = resolver_foto_menu(edit_foto_archivo, edit_nombre, "promos", fila.get("foto", ""))
+                foto_url = resolver_foto_menu(edit_foto_archivo, edit_nombre, "promos", fila.get("foto", ""), encuadre_edit_foto)
                 if edit_foto_archivo and not foto_url:
                     st.stop()
                 if actualizar_promo_completa(
