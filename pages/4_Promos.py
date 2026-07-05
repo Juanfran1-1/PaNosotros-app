@@ -151,7 +151,10 @@ if not df_promos.empty:
     for i, (_, fila) in enumerate(df_promos.iterrows()):
         with cols[i % 3]:
             disponible = fila.get("disponible", True)
-            label = f"✅ {fila['nombre']}" if disponible else f"❌ {fila['nombre']}"
+            estado_clase = "pa-state-on" if disponible else "pa-state-off"
+            estado_texto = "Habilitada" if disponible else "Deshabilitada"
+            label = f"{estado_texto} · {fila['nombre']}"
+            st.markdown(f'<span class="{estado_clase}"></span>', unsafe_allow_html=True)
             if st.button(label, key=f"promo_stock_{fila['id']}", use_container_width=True):
                 actualizar_disponibilidad_promo(int(fila["id"]), not disponible)
                 st.rerun()

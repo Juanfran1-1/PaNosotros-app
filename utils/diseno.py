@@ -222,6 +222,49 @@ def aplicar_estilos():
                 border-color: var(--pa-red-hover) !important;
             }
 
+            .pa-state-on + div.stButton > button,
+            .pa-state-on + div.stButton > button[kind="secondary"],
+            .element-container:has(.pa-state-on) + div.stButton > button,
+            .element-container:has(.pa-state-on) + div.stButton > button[kind="secondary"] {
+                background: var(--pa-green) !important;
+                border-color: var(--pa-green) !important;
+            }
+
+            .pa-state-on + div.stButton > button *,
+            .pa-state-on + div.stButton > button[kind="secondary"] *,
+            .element-container:has(.pa-state-on) + div.stButton > button *,
+            .element-container:has(.pa-state-on) + div.stButton > button[kind="secondary"] *,
+            .pa-state-off + div.stButton > button *,
+            .pa-state-off + div.stButton > button[kind="secondary"] *,
+            .element-container:has(.pa-state-off) + div.stButton > button *,
+            .element-container:has(.pa-state-off) + div.stButton > button[kind="secondary"] * {
+                color: #ffffff !important;
+            }
+
+            .pa-state-on + div.stButton > button:hover,
+            .pa-state-on + div.stButton > button[kind="secondary"]:hover,
+            .element-container:has(.pa-state-on) + div.stButton > button:hover,
+            .element-container:has(.pa-state-on) + div.stButton > button[kind="secondary"]:hover {
+                background: #188249 !important;
+                border-color: #188249 !important;
+            }
+
+            .pa-state-off + div.stButton > button,
+            .pa-state-off + div.stButton > button[kind="secondary"],
+            .element-container:has(.pa-state-off) + div.stButton > button,
+            .element-container:has(.pa-state-off) + div.stButton > button[kind="secondary"] {
+                background: var(--pa-red) !important;
+                border-color: var(--pa-red) !important;
+            }
+
+            .pa-state-off + div.stButton > button:hover,
+            .pa-state-off + div.stButton > button[kind="secondary"]:hover,
+            .element-container:has(.pa-state-off) + div.stButton > button:hover,
+            .element-container:has(.pa-state-off) + div.stButton > button[kind="secondary"]:hover {
+                background: var(--pa-red-hover) !important;
+                border-color: var(--pa-red-hover) !important;
+            }
+
             .stTextInput input,
             .stNumberInput input,
             .stTextArea textarea,

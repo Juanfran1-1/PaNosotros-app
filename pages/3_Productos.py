@@ -65,7 +65,10 @@ if not df_hamburguesas.empty:
     for i, (_, fila) in enumerate(df_hamburguesas.iterrows()):
         with cols[i % 3]:
             disponible = fila.get("disponible", True)
-            label = f"✅ {fila['nombre']}" if disponible else f"❌ {fila['nombre']}"
+            estado_clase = "pa-state-on" if disponible else "pa-state-off"
+            estado_texto = "Habilitado" if disponible else "Deshabilitado"
+            label = f"{estado_texto} · {fila['nombre']}"
+            st.markdown(f'<span class="{estado_clase}"></span>', unsafe_allow_html=True)
             if st.button(label, key=f"stock_{fila['id']}", use_container_width=True):
                 actualizar_disponibilidad(int(fila["id"]), not disponible)
                 st.rerun()
@@ -79,9 +82,13 @@ if not df_hamburguesas.empty:
             mostrar_en_menu = fila.get("mostrar_en_menu", True)
             if pd.isna(mostrar_en_menu):
                 mostrar_en_menu = True
-            label = f"👁️ {fila['nombre']}" if mostrar_en_menu else f"🙈 {fila['nombre']}"
+            mostrar_en_menu = bool(mostrar_en_menu)
+            estado_clase = "pa-state-on" if mostrar_en_menu else "pa-state-off"
+            estado_texto = "Visible" if mostrar_en_menu else "Oculto"
+            label = f"{estado_texto} · {fila['nombre']}"
+            st.markdown(f'<span class="{estado_clase}"></span>', unsafe_allow_html=True)
             if st.button(label, key=f"menu_visible_{fila['id']}", use_container_width=True):
-                actualizar_visibilidad_menu(int(fila["id"]), not bool(mostrar_en_menu))
+                actualizar_visibilidad_menu(int(fila["id"]), not mostrar_en_menu)
                 st.rerun()
 
 st.divider()
@@ -107,7 +114,10 @@ else:
     for i, (_, fila) in enumerate(df_extras.iterrows()):
         with cols_extras[i % 3]:
             disponible = fila.get("disponible", True)
-            label = f"✅ {fila['nombre']}" if disponible else f"❌ {fila['nombre']}"
+            estado_clase = "pa-state-on" if disponible else "pa-state-off"
+            estado_texto = "Habilitado" if disponible else "Deshabilitado"
+            label = f"{estado_texto} · {fila['nombre']}"
+            st.markdown(f'<span class="{estado_clase}"></span>', unsafe_allow_html=True)
             if st.button(label, key=f"extra_stock_{fila['id']}", use_container_width=True):
                 actualizar_disponibilidad_extra(int(fila["id"]), not disponible)
                 st.rerun()
