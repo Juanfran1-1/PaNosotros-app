@@ -56,6 +56,15 @@ def cargar_datos():
         st.error(f"⚠️ Error al cargar el historial: {e}")
         return pd.DataFrame()
 
+def cargar_resenas():
+    try:
+        client = get_connection()
+        res = client.table("resenas").select("*").order("created_at", desc=True).execute()
+        return pd.DataFrame(res.data)
+    except Exception as e:
+        st.error(f"⚠️ Error al cargar reseñas: {e}")
+        return pd.DataFrame()
+
 def guardar_pedido(fecha, detalle, cliente, numero, monto, metodo_pago, entrega, direccion, estado):
     try:
         client = get_connection()

@@ -109,13 +109,24 @@ if login():
 
     with col2:
         if st.button(
+            "⭐ Reseñas",
+            use_container_width=True,
+            type="primary"
+        ):
+            st.switch_page("pages/1_Resenas.py")
+
+    with col3:
+        if st.button(
             "🧾 Pedidos",
             use_container_width=True,
             type="primary"
         ):
             st.switch_page("pages/2_Pedidos.py")
 
-    with col3:
+    # FILA 2
+    col4, col5, col6 = st.columns(3)
+
+    with col4:
         if st.button(
             "🍔 Productos",
             use_container_width=True,
@@ -123,10 +134,7 @@ if login():
         ):
             st.switch_page("pages/3_Productos.py")
 
-    # FILA 2
-    col4, col5, col6 = st.columns(3)
-
-    with col4:
+    with col5:
         if st.button(
             "🔥 Promos",
             use_container_width=True,
@@ -134,7 +142,7 @@ if login():
         ):
             st.switch_page("pages/4_Promos.py")
 
-    with col5:
+    with col6:
         if st.button(
             "📜 Historial",
             use_container_width=True,
@@ -142,16 +150,16 @@ if login():
         ):
             st.switch_page("pages/5_Historial.py")
 
-    with col6:
+    # FILA 3
+    col7, col8, col9 = st.columns(3)
+
+    with col7:
         if st.button(
             "➕ Registrar",
             use_container_width=True,
             type="primary"
         ):
             st.switch_page("pages/6_Registrar.py")
-
-    # FILA 3
-    col7, col8, col9 = st.columns(3)
 
     with col8:
         if st.button(
