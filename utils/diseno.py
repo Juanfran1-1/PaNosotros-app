@@ -327,19 +327,98 @@ def aplicar_estilos():
             .pa-home-card {
                 background: var(--pa-panel);
                 border: 1px solid var(--pa-line);
-                border-radius: 18px;
+                border-radius: 14px;
                 padding: 18px;
-                text-align: center;
+                min-height: 154px;
                 box-shadow: 0 10px 24px rgba(15,16,18,.05);
             }
 
             .pa-home-card h3 {
-                margin-bottom: 8px !important;
+                margin: 0 0 8px !important;
+                font-size: 1.08rem !important;
+                line-height: 1.15 !important;
             }
 
             .pa-home-card p {
                 color: var(--pa-muted) !important;
                 font-size: .9rem;
+                line-height: 1.4;
+                margin: 0 0 14px !important;
+            }
+
+            .pa-home-hero {
+                margin: 0 0 1.3rem;
+                padding: 1.5rem;
+                display: grid;
+                grid-template-columns: 108px 1fr;
+                gap: 1.2rem;
+                align-items: center;
+                border: 1px solid var(--pa-line);
+                border-radius: 18px;
+                background:
+                    linear-gradient(135deg, rgba(255, 196, 0, 0.2), transparent 46%),
+                    var(--pa-panel);
+                box-shadow: 0 16px 36px rgba(15,16,18,.06);
+            }
+
+            .pa-home-logo {
+                width: 108px;
+                height: 108px;
+                border-radius: 18px;
+                object-fit: cover;
+                border: 1px solid rgba(255, 196, 0, .36);
+                box-shadow: 0 12px 24px rgba(15,16,18,.09);
+            }
+
+            .pa-home-kicker {
+                margin: 0 0 .35rem !important;
+                color: var(--pa-muted) !important;
+                text-transform: uppercase;
+                font-size: .78rem;
+                font-weight: 850;
+            }
+
+            .pa-home-hero h1 {
+                margin: 0 !important;
+                color: var(--pa-text) !important;
+                font-size: clamp(2rem, 4vw, 3rem) !important;
+                line-height: .98 !important;
+                font-weight: 950 !important;
+            }
+
+            .pa-home-hero h1 span {
+                color: var(--pa-yellow);
+            }
+
+            .pa-home-hero p:last-child {
+                max-width: 720px;
+                margin: .65rem 0 0 !important;
+                color: var(--pa-muted) !important;
+                line-height: 1.45;
+            }
+
+            .pa-home-section-title {
+                margin: 1.1rem 0 .7rem !important;
+                font-size: 1rem !important;
+                text-transform: uppercase;
+                letter-spacing: 0 !important;
+                font-weight: 950 !important;
+            }
+
+            .pa-home-card .stButton > button {
+                width: 100%;
+            }
+
+            @media (max-width: 760px) {
+                .pa-home-hero {
+                    grid-template-columns: 1fr;
+                    padding: 1.15rem;
+                }
+
+                .pa-home-logo {
+                    width: 88px;
+                    height: 88px;
+                }
             }
         </style>
         """,
