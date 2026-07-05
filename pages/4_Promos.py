@@ -355,6 +355,7 @@ if not df_promos.empty:
         )
         fila_eliminar = df_promos[df_promos["nombre"] == promo_eliminar].iloc[0]
 
+        st.markdown('<span class="pa-danger-button"></span>', unsafe_allow_html=True)
         if st.button("Eliminar promo", type="secondary"):
             if eliminar_promo(int(fila_eliminar["id"])):
                 st.success("Promo eliminada correctamente.")

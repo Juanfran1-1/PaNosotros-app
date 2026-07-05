@@ -185,16 +185,39 @@ def aplicar_estilos():
             }
 
             div.stButton > button[kind="secondary"] {
-                background: var(--pa-red) !important;
-                border-color: var(--pa-red) !important;
+                background: var(--pa-panel) !important;
+                border-color: var(--pa-line) !important;
             }
 
             div.stButton > button[kind="secondary"] *,
             div.stFormSubmitButton > button[kind="secondary"] * {
-                color: #ffffff !important;
+                color: var(--pa-text) !important;
             }
 
             div.stButton > button[kind="secondary"]:hover {
+                background: #fff8df !important;
+                border-color: var(--pa-yellow) !important;
+            }
+
+            .pa-danger-button + div.stButton > button,
+            .pa-danger-button + div.stButton > button[kind="secondary"],
+            .element-container:has(.pa-danger-button) + div.stButton > button,
+            .element-container:has(.pa-danger-button) + div.stButton > button[kind="secondary"] {
+                background: var(--pa-red) !important;
+                border-color: var(--pa-red) !important;
+            }
+
+            .pa-danger-button + div.stButton > button *,
+            .pa-danger-button + div.stButton > button[kind="secondary"] *,
+            .element-container:has(.pa-danger-button) + div.stButton > button *,
+            .element-container:has(.pa-danger-button) + div.stButton > button[kind="secondary"] * {
+                color: #ffffff !important;
+            }
+
+            .pa-danger-button + div.stButton > button:hover,
+            .pa-danger-button + div.stButton > button[kind="secondary"]:hover,
+            .element-container:has(.pa-danger-button) + div.stButton > button:hover,
+            .element-container:has(.pa-danger-button) + div.stButton > button[kind="secondary"]:hover {
                 background: var(--pa-red-hover) !important;
                 border-color: var(--pa-red-hover) !important;
             }

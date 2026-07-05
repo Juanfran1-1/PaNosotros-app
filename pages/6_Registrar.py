@@ -148,6 +148,7 @@ else:
                     time.sleep(1.5)
                     st.rerun()
     with g2:
+        st.markdown('<span class="pa-danger-button"></span>', unsafe_allow_html=True)
         if st.button("🗑️ VACIAR CARRITO", use_container_width=True, type="secondary"):
             st.session_state.pedido_actual = []
             st.rerun()

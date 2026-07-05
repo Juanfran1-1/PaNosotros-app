@@ -177,6 +177,7 @@ if not df_extras.empty:
         )
         fila_extra_eliminar = df_extras[df_extras["nombre"] == extra_eliminar].iloc[0]
 
+        st.markdown('<span class="pa-danger-button"></span>', unsafe_allow_html=True)
         if st.button("Eliminar extra", type="secondary"):
             if eliminar_extra(int(fila_extra_eliminar["id"])):
                 st.success("Extra eliminado correctamente.")
@@ -272,6 +273,7 @@ if not df_hamburguesas.empty:
         fila_eliminar = df_hamburguesas[df_hamburguesas["nombre"] == hamburguesa_eliminar].iloc[0]
         hamburguesa_id_eliminar = int(fila_eliminar["id"])
 
+        st.markdown('<span class="pa-danger-button"></span>', unsafe_allow_html=True)
         if st.button("Eliminar hamburguesa", type="secondary"):
             try:
                 eliminar_hamburguesa(hamburguesa_id_eliminar)

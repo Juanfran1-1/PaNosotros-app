@@ -86,9 +86,11 @@ def mostrar_gestion_pedidos(filtros):
                             st.rerun()
                 
                 # Botón cancelar siempre disponible
-                if (p['estado'] != "Terminado" and p['estado'] != "Rechazado") and st.button("🚫 Cancelar", key=f"can_{p['id']}", use_container_width=True, type="secondary"):
-                    actualizar_estado_pedido(p['id'], "Rechazado")
-                    st.rerun()
+                if p['estado'] != "Terminado" and p['estado'] != "Rechazado":
+                    st.markdown('<span class="pa-danger-button"></span>', unsafe_allow_html=True)
+                    if st.button("🚫 Cancelar", key=f"can_{p['id']}", use_container_width=True, type="secondary"):
+                        actualizar_estado_pedido(p['id'], "Rechazado")
+                        st.rerun()
         st.divider()
 
 # Llamada a la función
