@@ -1,4 +1,5 @@
 import streamlit as st
+import re
 from utils.diseno import aplicar_estilos, page_header, section_note
 from data.database import get_connection
 from data.modificador_db import cargar_configuracion
@@ -14,10 +15,14 @@ if "authenticated" not in st.session_state or not st.session_state.authenticated
 def actualizar_campo(columna, valor):
     try:
         client = get_connection()
-        client.table("configuracion").update({columna: valor}).eq("id", config.get("id")).execute()
+        data = {"id": config.get("id", 1), columna: valor}
+        client.table("configuracion").upsert(data).execute()
         st.toast(f"✅ {columna.replace('_', ' ').capitalize()} actualizado", icon="🚀")
     except Exception as e:
         st.error(f"❌ Error: {e}")
+
+def normalizar_whatsapp(numero):
+    return re.sub(r"\D", "", str(numero or ""))
 
 # Carga inicial
 config = cargar_configuracion()
@@ -46,7 +51,29 @@ else:
 
 st.divider()
 
-# --- SECCIÓN 2: ALIAS MERCADO PAGO ---
+# --- SECCIÓN 2: MODO MANTENIMIENTO ---
+st.subheader("🛠️ Aplicación de clientes")
+section_note("Al activarlo, se bloquean el menú y los pedidos. Los clientes solo ven la pantalla informativa y el acceso a Instagram.")
+mantenimiento_actual = config.get("mantenimiento", False)
+
+nuevo_mantenimiento = st.toggle(
+    "Activar modo mantenimiento",
+    value=mantenimiento_actual,
+    key="toggle_mantenimiento"
+)
+
+if nuevo_mantenimiento != mantenimiento_actual:
+    actualizar_campo("mantenimiento", nuevo_mantenimiento)
+    st.rerun()
+
+if nuevo_mantenimiento:
+    st.warning("La aplicación de clientes está en MODO MANTENIMIENTO 🛠️")
+else:
+    st.success("La aplicación de clientes está habilitada ✅")
+
+st.divider()
+
+# --- SECCIÓN 3: ALIAS MERCADO PAGO ---
 st.subheader("💳 Finanzas")
 col_alias, col_btn_alias = st.columns([3, 1])
 
@@ -59,7 +86,7 @@ with col_btn_alias:
 
 st.divider()
 
-# --- SECCIÓN 3: LOGÍSTICA (COSTO ENVÍO) ---
+# --- SECCIÓN 4: LOGÍSTICA (COSTO ENVÍO) ---
 st.subheader("🚚 Logística")
 col_envio, col_btn_envio = st.columns([3, 1])
 
@@ -72,7 +99,7 @@ with col_btn_envio:
 
 st.divider()
 
-# --- SECCIÓN 4: RETIRO EN LOCAL ---
+# --- SECCIÓN 5: RETIRO EN LOCAL ---
 st.subheader("📍 Retiro en local")
 col_dir_local, col_btn_dir_local = st.columns([3, 1])
 
@@ -85,7 +112,7 @@ with col_btn_dir_local:
 
 st.divider()
 
-# --- SECCIÓN 5: PROMOS ---
+# --- SECCIÓN 6: PROMOS ---
 st.subheader("🎁 Promos")
 col_promo_titulo, col_btn_promo_titulo = st.columns([3, 1])
 
@@ -104,7 +131,7 @@ st.caption("Este texto aparece en el carrusel de promos del inicio.")
 
 st.divider()
 
-# --- SECCIÓN 6: CONTACTO (WHATSAPP) ---
+# --- SECCIÓN 7: CONTACTO (WHATSAPP) ---
 st.subheader("📱 WhatsApp de Pedidos")
 col_ws, col_btn_ws = st.columns([3, 1])
 
@@ -113,4 +140,8 @@ with col_ws:
 with col_btn_ws:
     st.write(" ")
     if st.button("Guardar WhatsApp", use_container_width=True,type="primary"):
-        actualizar_campo("whatsapp", ws_input)
+        ws_normalizado = normalizar_whatsapp(ws_input)
+        if not ws_normalizado:
+            st.error("Ingresá un número de WhatsApp válido.")
+        else:
+            actualizar_campo("whatsapp", ws_normalizado)
